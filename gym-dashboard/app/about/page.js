@@ -60,6 +60,8 @@ import {
 // import { Toaster } from "@/components/ui/toaster"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useAppDispatch } from "@/lib/redux/hooks"
+import { showToast } from "@/lib/redux/slices/toastSlice"
 
 // Lucide icons
 import {
@@ -79,12 +81,11 @@ import {
   Loader2,
   LayoutDashboard,
 } from "lucide-react"
+import { getBrandColor } from "../../helper/helper"
 
 /* ─────────────────────────────────────────────
    Utility: read brand colour from localStorage
 ───────────────────────────────────────────── */
-const getBrandColor = () =>
-  localStorage.getItem("admin_brandcolor") || "#16a34a" // green-600 fallback
 
 /* ─────────────────────────────────────────────
    StatsEditor – inline JSON stat row manager
@@ -145,10 +146,16 @@ const StatsEditor = ({ stats, onChange }) => {
   )
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
 /* ─────────────────────────────────────────────
    ImageUploader – drag-and-drop image field
 ───────────────────────────────────────────── */
 const ImageUploader = ({ file, preview, onFileChange, brandColor }) => {
+  const imgPreview = preview?.startsWith("/uploads")
+    ? `${BASE_URL}${preview}`
+    : preview
+
   const inputRef = useRef(null)
   const [dragging, setDragging] = useState(false)
 
@@ -168,13 +175,14 @@ const ImageUploader = ({ file, preview, onFileChange, brandColor }) => {
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
-      className={`relative flex min-h-[140px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-200 ${dragging ? "border-opacity-100 bg-opacity-10" : "border-muted-foreground/30 hover:border-muted-foreground/60"} `}
+      className={`relative flex min-h-[340px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-200 ${dragging ? "border-opacity-100 bg-opacity-10" : "border-muted-foreground/30 hover:border-muted-foreground/60"} `}
       style={{ borderColor: dragging ? brandColor : undefined }}
     >
       {preview ? (
         <>
           <img
-            src={preview}
+            // src={`http://localhost:8000${preview}`}
+            src={imgPreview}
             alt="Preview"
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -256,10 +264,10 @@ const SkeletonRows = () =>
 const AboutAdminPanel = () => {
   // const { toast } = useToast()
   const brandColor = getBrandColor()
+  const dispatch = useAppDispatch()
 
   /* ── State ── */
   const [records, setRecords] = useState([])
-  console.log("🚀 ~ AboutAdminPanel ~ records:", records)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -295,11 +303,7 @@ const AboutAdminPanel = () => {
       const res = await axiosInstance.get("/about/all")
       setRecords(res.data?.data || res.data || [])
     } catch (err) {
-      // toast({
-      //   variant: "destructive",
-      //   title: "Failed to load records",
-      //   description: err?.response?.data?.message || "Something went wrong.",
-      // })
+      dispatch(showToast({ message: "Failed to load records", type: "error" }))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -374,11 +378,8 @@ const AboutAdminPanel = () => {
   const handleSubmit = async () => {
     const error = validate()
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: error,
-      })
+      dispatch(showToast({ message: "Validation Error", type: "error" }))
+
       return
     }
     setSaving(true)
@@ -398,7 +399,10 @@ const AboutAdminPanel = () => {
         await axiosInstance.post("/about", fd, {
           headers: { "Content-Type": "multipart/form-data" },
         })
-        toast({ title: "Created!", description: "New about section created." })
+
+        dispatch(
+          showToast({ message: "New about section created.", type: "success" })
+        )
       }
       setDialogOpen(false)
       fetchRecords()
@@ -420,15 +424,11 @@ const AboutAdminPanel = () => {
     try {
       // DELETE /about/:id
       await axiosInstance.delete(`/about/${deletingId}`)
-
+      dispatch(showToast({ message: "Delete Successfully", type: "success" }))
       setDeleteDialogOpen(false)
       fetchRecords()
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Delete Failed",
-        description: err?.response?.data?.message || "Something went wrong.",
-      })
+      dispatch(showToast({ message: "Delete Failed", type: "error" }))
     } finally {
       setDeleting(false)
     }
@@ -451,33 +451,30 @@ const AboutAdminPanel = () => {
           r._id === record._id ? { ...r, isActive: !r.isActive } : r
         )
       )
-      toast({
-        title: !record.isActive ? "Activated" : "Deactivated",
-        description: `"${record.title}" is now ${!record.isActive ? "active" : "inactive"}.`,
-      })
+
+      dispatch(
+        showToast({
+          message: `${!record.isActive ? "Activated" : "Deactivated"}`,
+          type: "success",
+        })
+      )
     } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Toggle Failed",
-        description: err?.response?.data?.message || "Could not update status.",
-      })
+      dispatch(
+        showToast({
+          message: "Toggle Failed",
+          type: "error",
+        })
+      )
     }
   }
 
   /* ── Render ── */
   return (
     <TooltipProvider>
-      <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
+      <div className="my-5 min-h-screen space-y-6 bg-background">
         {/* ── Page Header ── */}
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Admin</span>
-              <ChevronRight className="h-3.5 w-3.5" />
-              <span style={{ color: brandColor }} className="font-medium">
-                About Section
-              </span>
-            </div>
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
               About Section
             </h1>
@@ -508,7 +505,7 @@ const AboutAdminPanel = () => {
             {/* Create button */}
             <Button
               onClick={openCreate}
-              className="gap-2 text-white shadow-sm"
+              className="h-9 gap-2 text-white shadow-sm"
               style={{ backgroundColor: brandColor }}
             >
               <Plus className="h-4 w-4" />
@@ -539,7 +536,7 @@ const AboutAdminPanel = () => {
                 icon: BarChart2,
               },
             ].map(({ label, value, icon: Icon }) => (
-              <Card key={label} className="border shadow-none">
+              <Card key={label} className="rounded border-none shadow-none">
                 <CardContent className="flex items-center gap-3 p-4">
                   <div
                     className="shrink-0 rounded-lg p-2"
@@ -559,17 +556,14 @@ const AboutAdminPanel = () => {
           </div>
         )}
 
-        {/* ── Main Table Card ── */}
-        <Card className="border shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">
-              All About Records
-            </CardTitle>
-            <CardDescription>
-              {records.length} record{records.length !== 1 ? "s" : ""} found
-            </CardDescription>
-          </CardHeader>
+        <div>
+          <p>
+            {records.length} record{records.length !== 1 ? "s" : ""} found
+          </p>
+        </div>
 
+        {/* ── Main Table Card ── */}
+        <Card className="border-none p-0 shadow-none">
           <CardContent className="p-0">
             {/* Desktop Table */}
             <div className="hidden md:block">
@@ -826,22 +820,13 @@ const AboutAdminPanel = () => {
               )}
             </div>
           </CardContent>
-
-          {/* Footer with record count */}
-          {records.length > 0 && !loading && (
-            <CardFooter className="border-t px-6 pt-3 pb-3">
-              <p className="text-xs text-muted-foreground">
-                Showing {records.length} record{records.length !== 1 ? "s" : ""}
-              </p>
-            </CardFooter>
-          )}
         </Card>
 
         {/* ═════════════════════════════════════
             CREATE / EDIT DIALOG
         ═════════════════════════════════════ */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col overflow-hidden p-0">
+          <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col overflow-hidden p-0 lg:max-w-3xl">
             {/* Dialog Header */}
             <DialogHeader className="shrink-0 px-6 pt-6 pb-2">
               <DialogTitle className="flex items-center gap-2 text-xl">

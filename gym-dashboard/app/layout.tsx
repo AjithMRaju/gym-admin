@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import { Toaster } from "sonner"
+import GlobalToast from "@/common/alerts/GlobalToast"
+import GlobalAlerts from "@/common/alerts/GlobalAlerts"
 import ReduxProvider from "@/lib/redux/provider"
 import AuthLayout from "@/layout/AuthLayout/AuthLayout"
 
@@ -36,6 +39,9 @@ export default function RootLayout({
         <ThemeProvider>
           <ReduxProvider>
             <AuthLayout>{children}</AuthLayout>
+            <Toaster />
+            <GlobalToast />
+            <GlobalAlerts />
           </ReduxProvider>
         </ThemeProvider>
       </body>
