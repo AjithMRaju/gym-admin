@@ -103,6 +103,8 @@ const EMPTY_FORM = {
   isActive: true,
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
 // ─────────────────────────────────────────────────────────────
 // SORTABLE ROW (drag-and-drop table row)
 // ─────────────────────────────────────────────────────────────
@@ -145,9 +147,10 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
 
       {/* Image / Icon */}
       <td className="w-16 px-4 py-4">
-        {service.imageUrl ? (
+        {service.image ? (
           <img
-            src={service.imageUrl}
+            // src={service.imageUrl}
+            src={`${BASE_URL}${service.image}`}
             alt={service.title}
             className="h-10 w-10 rounded-lg object-cover ring-2 ring-green-100"
           />
@@ -356,7 +359,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl border-0 bg-white p-0 shadow-2xl">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl border-0 bg-white p-0 shadow-2xl lg:max-w-4xl">
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-gray-100 bg-white px-6 pt-6 pb-4">
           <DialogHeader>
