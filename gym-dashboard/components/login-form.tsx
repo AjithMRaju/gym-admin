@@ -85,10 +85,7 @@ export function LoginForm({
       if (data?.token) {
         localStorage.setItem("admin_token", data.token)
         dispatch(setAuth(data.token))
-        console.log(
-          "saved to localStorage:",
-          localStorage.getItem("admin_token")
-        )
+     
       }
 
       setSuccess(true)

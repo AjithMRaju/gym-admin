@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useAppDispatch } from "@/lib/redux/hooks"
-import { clearAuth } from "@/lib/redux/slices/authSlice"
+
 import {
   DotsThreeVerticalIcon,
   UserCircleIcon,
@@ -96,10 +96,10 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={dispatch(clearAuth())}>
+            {/* <DropdownMenuItem onClick={dispatch(clearAuth())}>
               <SignOutIcon />
               Log out
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

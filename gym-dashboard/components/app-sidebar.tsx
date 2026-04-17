@@ -30,8 +30,11 @@ import {
   ChartLineIcon,
   FileIcon,
   CommandIcon,
+  ImageSquareIcon,
+  AddressBookIcon,
 } from "@phosphor-icons/react"
 import { ThemeToggle } from "@/common/mode/theme-toggle"
+import { MessageSquareIcon } from "lucide-react"
 
 const data = {
   user: {
@@ -62,13 +65,13 @@ const data = {
     },
     {
       title: "Gallery",
-      url: "gallery",
-      icon: <UsersIcon />,
+      url: "/gallery",
+      icon: <ImageSquareIcon />,
     },
     {
       title: "Contact",
-      url: "contact",
-      icon: <UsersIcon />,
+      url: "/contact",
+      icon: <AddressBookIcon   />,
     },
   ],
   navClouds: [

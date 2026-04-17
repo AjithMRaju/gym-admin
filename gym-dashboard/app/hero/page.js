@@ -666,7 +666,7 @@ function HeroCard({ hero, onEdit, onDelete }) {
   const isActive = hero.isActive ?? hero.is_active
 
   return (
-    <Card className="group overflow-hidden rounded-sm border p-0 transition-all duration-200 hover:border-green-300 hover:shadow-md dark:hover:border-green-800">
+    <Card className="group overflow-hidden rounded border p-0 transition-all duration-200 hover:border-green-300 hover:shadow-md dark:hover:border-green-800">
       {/* Media thumbnail */}
       <div className="relative h-36 overflow-hidden bg-linear-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
         {imageUrl && (
@@ -818,7 +818,7 @@ function LiveHeroPreview({ hero }) {
   const buttonTitle = hero.ctaText || hero.button_title
 
   return (
-    <div className="relative flex min-h-75 items-end overflow-hidden rounded-xl bg-linear-to-br from-green-900 to-emerald-950 sm:min-h-[380px]">
+    <div className="relative flex min-h-75 items-end overflow-hidden rounded bg-linear-to-br from-green-900 to-emerald-950 sm:min-h-[380px]">
       {imageUrl && (
         <img
           src={`${NEXT_PUBLIC_API_URL}${imageUrl}`}

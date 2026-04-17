@@ -14,15 +14,9 @@ const authSlice = createSlice({
       state.token = action.payload
       state.isAuthenticated = true
     },
-    clearAuth: (state) => {
-      state.token = null
-      state.isAuthenticated = false
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("admin_token")
-      }
-    },
+   
   },
 })
 
-export const { setAuth, clearAuth } = authSlice.actions
+export const { setAuth } = authSlice.actions
 export default authSlice.reducer
