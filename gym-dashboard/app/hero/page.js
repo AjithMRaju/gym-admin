@@ -52,6 +52,7 @@ import {
   RefreshCw,
   LayoutDashboard,
 } from "lucide-react"
+import ErrorBanner from "@/common/clientError/ErrorBanner"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -875,6 +876,7 @@ const HeroDashboardPage = () => {
   const [activeHero, setActiveHero] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState("")
+  console.log("🚀 ~ HeroDashboardPage ~ fetchError:", fetchError)
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingHero, setEditingHero] = useState(null)
@@ -893,6 +895,7 @@ const HeroDashboardPage = () => {
   }
 
   // Fetch all heroes (dashboard view) + active public hero
+
   const fetchData = async () => {
     setLoading(true)
     setFetchError("")
@@ -1064,21 +1067,15 @@ const HeroDashboardPage = () => {
 
         {/* Fetch error */}
         {fetchError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription className="flex items-center justify-between gap-2">
-              {fetchError}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchData}
-                className="shrink-0"
-              >
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <div className="flex h-[70dvh] w-full items-center justify-center">
+            <ErrorBanner
+              compact
+              theme="red"
+              title="Permission denied"
+              message="Something went wrong"
+              details="Failed to load data,Please try again later"
+            />
+          </div>
         )}
 
         {/* Live preview */}

@@ -129,7 +129,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
     <tr
       ref={setNodeRef}
       style={style}
-      className={`group border-b border-green-50 transition-colors hover:bg-green-50/40 ${
+      className={`group border-b transition-colors hover:bg-green-50/40 ${
         isDragging ? "rounded-lg bg-green-50 shadow-lg" : ""
       }`}
     >
@@ -149,7 +149,6 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
       <td className="w-16 px-4 py-4">
         {service.image ? (
           <img
-            // src={service.imageUrl}
             src={`${BASE_URL}${service.image}`}
             alt={service.title}
             className="h-10 w-10 rounded-lg object-cover ring-2 ring-green-100"
@@ -167,9 +166,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
 
       {/* Title + Description */}
       <td className="min-w-[200px] px-4 py-4">
-        <p className="text-sm leading-tight font-semibold text-gray-800">
-          {service.title}
-        </p>
+        <p className="text-sm leading-tight font-semibold">{service.title}</p>
         <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">
           {service.description}
         </p>
@@ -187,7 +184,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
       </td>
 
       {/* Duration */}
-      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
+      <td className="px-4 py-4 text-sm whitespace-nowrap">
         {service.duration ? (
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3 text-green-400" />
@@ -232,7 +229,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-gray-400 hover:bg-green-50 hover:text-green-600"
+            className="h-8 w-8 cursor-pointer text-gray-400 hover:bg-green-50 hover:text-green-600"
             onClick={() => onEdit(service)}
             title="Edit service"
           >
@@ -241,7 +238,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-gray-400 hover:bg-red-50 hover:text-red-500"
+            className="h-8 w-8 cursor-pointer text-gray-400 hover:bg-red-50 hover:text-red-500"
             onClick={() => onDelete(service)}
             title="Delete service"
           >
@@ -260,8 +257,11 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
   const dispatch = useDispatch()
   const [form, setForm] = useState(EMPTY_FORM)
   const [imagePreview, setImagePreview] = useState(null)
+
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef(null)
+
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
   const isEdit = Boolean(editingService)
 
@@ -272,13 +272,13 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
           title: editingService.title || "",
           description: editingService.description || "",
           icon: editingService.icon || "",
-          image: null,
+          image: editingService.image || null,
           price: editingService.price || "",
           duration: editingService.duration || "",
           order: editingService.order ?? "",
           isActive: editingService.isActive ?? true,
         })
-        setImagePreview(editingService.imageUrl || null)
+        setImagePreview(editingService.image || null)
       } else {
         setForm(EMPTY_FORM)
         setImagePreview(null)
@@ -359,12 +359,12 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl border-0 bg-white p-0 shadow-2xl lg:max-w-4xl">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl border-0 p-0 lg:max-w-4xl">
         {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-gray-100 bg-white px-6 pt-6 pb-4">
+        <div className="sticky top-0 z-10 border-b bg-white px-6 pt-6 pb-4 dark:bg-secondary">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-green-700 shadow-lg shadow-green-200">
+              <div className="flex h-10 w-10 items-center justify-center rounded bg-linear-to-br from-green-500 to-green-700">
                 {isEdit ? (
                   <Pencil className="h-5 w-5 text-white" />
                 ) : (
@@ -372,7 +372,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                 )}
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-gray-900">
+                <DialogTitle className="text-xl font-bold">
                   {isEdit ? "Edit Service" : "Create New Service"}
                 </DialogTitle>
                 <DialogDescription className="mt-0.5 text-sm text-gray-400">
@@ -388,23 +388,23 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
         <div className="space-y-6 px-6 py-5">
           {/* Basic Info */}
           <div className="space-y-4">
-            <p className="text-xs font-semibold tracking-wider text-green-600 uppercase">
+            <p className="text-xs font-semibold tracking-wider uppercase">
               Basic Information
             </p>
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   Title <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   placeholder="e.g. Personal Training"
                   value={form.title}
                   onChange={(e) => handleChange("title", e.target.value)}
-                  className="h-11 rounded-lg border-gray-200 focus:border-green-400 focus:ring-green-400/20"
+                  className="h-11 rounded-lg focus:border-green-400 focus:ring-green-400/20"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   Description <span className="text-red-400">*</span>
                 </Label>
                 <textarea
@@ -412,7 +412,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                   value={form.description}
                   onChange={(e) => handleChange("description", e.target.value)}
                   rows={3}
-                  className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
+                  className="w-full resize-none rounded-lg border px-3 py-2.5 text-sm transition-all outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
                 />
               </div>
             </div>
@@ -420,23 +420,32 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
 
           {/* Media */}
           <div className="space-y-4">
-            <p className="text-xs font-semibold tracking-wider text-green-600 uppercase">
+            <p className="text-xs font-semibold tracking-wider uppercase">
               Media & Icon
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Image Upload */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   Service Image
                 </Label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-colors hover:border-green-400 hover:bg-green-50/30"
+                  className="relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-colors hover:border-green-400 hover:bg-green-50/30"
                 >
                   {imagePreview ? (
                     <>
                       <img
-                        src={imagePreview}
+                        src={
+                          // 1. If it's a Base64 string, use it as is
+                          imagePreview.startsWith("data:")
+                            ? imagePreview
+                            : // 2. If it's a backend path starting with /uploads, prepend BASE_URL
+                              imagePreview.startsWith("/uploads")
+                              ? `${BASE_URL}${imagePreview}`
+                              : // 3. Otherwise, use as is (for full external URLs)
+                                imagePreview
+                        }
                         alt="Preview"
                         className="absolute inset-0 h-full w-full object-cover"
                       />
@@ -464,32 +473,32 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
 
               {/* Icon */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   Icon Class / Identifier
                 </Label>
                 <Input
                   placeholder="e.g. 💪 or fa-dumbbell"
                   value={form.icon}
                   onChange={(e) => handleChange("icon", e.target.value)}
-                  className="h-11 rounded-lg border-gray-200 focus:border-green-400 focus:ring-green-400/20"
+                  className="h-11 rounded-lg focus:border-green-400 focus:ring-green-400/20"
                 />
-                {form.icon && (
+                {/* {form.icon && (
                   <div className="mt-2 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-100 to-green-200">
                     <span className="text-xl">{form.icon}</span>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
 
           {/* Pricing & Meta */}
           <div className="space-y-4">
-            <p className="text-xs font-semibold tracking-wider text-green-600 uppercase">
+            <p className="text-xs font-semibold tracking-wider uppercase">
               Pricing & Details
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
                     <DollarSign className="h-3.5 w-3.5 text-green-500" />
                     Price
@@ -499,11 +508,11 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                   placeholder="₹999/month"
                   value={form.price}
                   onChange={(e) => handleChange("price", e.target.value)}
-                  className="h-11 rounded-lg border-gray-200 focus:border-green-400 focus:ring-green-400/20"
+                  className="h-11 rounded-lg focus:border-green-400 focus:ring-green-400/20"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-green-500" />
                     Duration
@@ -513,11 +522,11 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                   placeholder="60 min"
                   value={form.duration}
                   onChange={(e) => handleChange("duration", e.target.value)}
-                  className="h-11 rounded-lg border-gray-200 focus:border-green-400 focus:ring-green-400/20"
+                  className="h-11 rounded-lg focus:border-green-400 focus:ring-green-400/20"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
                     <Hash className="h-3.5 w-3.5 text-green-500" />
                     Sort Order
@@ -528,19 +537,17 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                   placeholder="1"
                   value={form.order}
                   onChange={(e) => handleChange("order", e.target.value)}
-                  className="h-11 rounded-lg border-gray-200 focus:border-green-400 focus:ring-green-400/20"
+                  className="h-11 rounded-lg focus:border-green-400 focus:ring-green-400/20"
                 />
               </div>
             </div>
           </div>
 
           {/* Status */}
-          <div className="flex items-center justify-between rounded-xl border border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+          <div className="flex items-center justify-between rounded-xl border p-4">
             <div>
-              <p className="text-sm font-semibold text-gray-800">
-                Service Status
-              </p>
-              <p className="mt-0.5 text-xs text-gray-500">
+              <p className="text-sm font-semibold">Service Status</p>
+              <p className="mt-0.5 text-xs">
                 {form.isActive
                   ? "Visible to users on the public listing."
                   : "Hidden from public view."}
@@ -564,11 +571,11 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 flex justify-end gap-3 border-t border-gray-100 bg-white px-6 py-4">
+        <div className="sticky bottom-0 flex justify-end gap-3 border-t px-6 py-4 dark:bg-secondary">
           <Button
             variant="ghost"
             onClick={onClose}
-            className="rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-lg hover:bg-gray-100 hover:text-gray-400"
             disabled={submitting}
           >
             Cancel
@@ -576,7 +583,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
           <Button
             onClick={handleSubmit}
             disabled={submitting}
-            className="rounded-lg bg-green-600 px-6 text-white shadow-lg shadow-green-200 transition-all hover:bg-green-700"
+            className="rounded px-6 text-white transition-all hover:bg-green-700"
           >
             {submitting ? (
               <span className="flex items-center gap-2">
@@ -600,17 +607,17 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
 // ─────────────────────────────────────────────────────────────
 function StatCard({ label, value, icon: Icon, accent }) {
   return (
-    <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
+    <Card className="overflow-hidden rounded border-0 shadow-sm">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
               {label}
             </p>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
+            <p className="mt-1 text-2xl font-bold">{value}</p>
           </div>
           <div
-            className={`flex h-12 w-12 items-center justify-center rounded-xl ${accent}`}
+            className={`flex h-12 w-12 items-center justify-center rounded ${accent}`}
           >
             <Icon className="h-5 w-5" />
           </div>
@@ -787,18 +794,15 @@ export default function ServicesAdminPanel() {
   // RENDER
   // ─────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="my-5 min-h-screen lg:my-10">
+      <div className="space-y-6">
         {/* ── Page Header ─────────────────────────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="mb-1 flex items-center gap-2">
-              <div className="h-6 w-1.5 rounded-full bg-green-600" />
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                Services
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight">Services</h1>
             </div>
-            <p className="pl-3.5 text-sm text-gray-500">
+            <p className="pl-3.5 text-sm">
               Manage and organise your service offerings
             </p>
           </div>
@@ -835,7 +839,7 @@ export default function ServicesAdminPanel() {
                 setEditingService(null)
                 setDialogOpen(true)
               }}
-              className="h-10 gap-2 rounded-xl bg-green-600 px-5 text-white shadow-lg shadow-green-200 transition-all hover:bg-green-700"
+              className="h-10 gap-2 rounded px-5 text-white shadow-lg transition-all hover:bg-green-700"
             >
               <Plus className="h-4 w-4" />
               New Service
@@ -861,7 +865,7 @@ export default function ServicesAdminPanel() {
             label="Inactive"
             value={stats.inactive}
             icon={EyeOff}
-            accent="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500"
+            accent="bg-gradient-to-br from-gray-100 to-gray-200 "
           />
         </div>
 
@@ -873,27 +877,27 @@ export default function ServicesAdminPanel() {
               placeholder="Search services…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-10 rounded-xl border-gray-200 bg-white pl-10 focus:border-green-400 focus:ring-green-400/20"
+              className="h-10 rounded pl-10 focus:border-green-400 focus:ring-green-400/20"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+                className="hover: absolute top-1/2 right-3 -translate-y-1/2 text-gray-300"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
 
-          <div className="flex h-10 items-center gap-1 rounded-xl border border-gray-200 bg-white p-1">
+          <div className="flex h-10 items-center gap-1 rounded border p-1">
             {["all", "active", "inactive"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilterStatus(f)}
-                className={`rounded-lg px-3 py-1 text-xs font-medium capitalize transition-all ${
+                className={`cursor-pointer rounded px-3 py-1 text-xs font-medium capitalize transition-all ${
                   filterStatus === f
                     ? "bg-green-600 text-white shadow-sm"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                    : " hover:bg-gray-50 hover:text-gray-700"
                 }`}
               >
                 {f}
@@ -903,11 +907,11 @@ export default function ServicesAdminPanel() {
         </div>
 
         {/* ── Table Card ──────────────────────────────────── */}
-        <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
-          <CardHeader className="border-b border-gray-50 px-6 py-4">
+        <Card className="overflow-hidden rounded border-none shadow-sm">
+          <CardHeader className="border-b px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold text-gray-900">
+                <CardTitle className="text-base font-semibold">
                   All Services
                 </CardTitle>
                 <CardDescription className="mt-0.5 text-xs text-gray-400">
@@ -936,9 +940,7 @@ export default function ServicesAdminPanel() {
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50">
                   <Layers className="h-7 w-7 text-green-300" />
                 </div>
-                <p className="text-sm font-medium text-gray-500">
-                  No services found
-                </p>
+                <p className="text-sm font-medium">No services found</p>
                 <p className="mt-1 text-xs text-gray-400">
                   {search
                     ? "Try a different search term"
@@ -950,7 +952,7 @@ export default function ServicesAdminPanel() {
                       setEditingService(null)
                       setDialogOpen(true)
                     }}
-                    className="mt-4 gap-2 rounded-xl bg-green-600 text-white shadow-lg shadow-green-200 hover:bg-green-700"
+                    className="mt-4 gap-2 rounded hover:bg-green-700"
                   >
                     <Plus className="h-4 w-4" />
                     New Service
@@ -969,7 +971,7 @@ export default function ServicesAdminPanel() {
                 >
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="bg-gray-50/80">
+                      <tr className="bg-sidebar-accent">
                         <th className="w-10 px-3 py-3" />
                         <th className="w-16 px-4 py-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
                           Image
@@ -1054,30 +1056,30 @@ export default function ServicesAdminPanel() {
         open={Boolean(deleteTarget)}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
       >
-        <AlertDialogContent className="max-w-sm rounded-2xl border-0 shadow-2xl">
+        <AlertDialogContent className="max-w-sm rounded-none border-0 shadow-2xl">
           <AlertDialogHeader>
             <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
               <Trash2 className="h-5 w-5 text-red-500" />
             </div>
-            <AlertDialogTitle className="text-center text-lg font-bold text-gray-900">
+            <AlertDialogTitle className="w-full text-center text-lg font-bold">
               Delete Service?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-sm text-gray-500">
-              <strong className="text-gray-700">{deleteTarget?.title}</strong>{" "}
+            <AlertDialogDescription className="text-center text-sm">
+              <strong className="text-red-500">{deleteTarget?.title}</strong>{" "}
               will be permanently removed. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-2 flex gap-3">
             <AlertDialogCancel
               onClick={() => setDeleteTarget(null)}
-              className="flex-1 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+              className="flex-1 cursor-pointer rounded border-gray-200 text-gray-600 hover:bg-gray-50"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting}
-              className="text- white flex-1 rounded-xl bg-red-500 shadow-lg shadow-red-100 hover:bg-red-600"
+              className="text- white flex-1 cursor-pointer rounded bg-red-500 shadow-lg hover:bg-red-600"
             >
               {deleting ? (
                 <span className="flex items-center justify-center gap-2">

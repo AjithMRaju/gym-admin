@@ -31,6 +31,7 @@ import {
   FileIcon,
   CommandIcon,
 } from "@phosphor-icons/react"
+import { ThemeToggle } from "@/common/mode/theme-toggle"
 
 const data = {
   user: {
@@ -168,6 +169,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <ThemeToggle />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
