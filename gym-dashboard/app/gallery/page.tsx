@@ -229,7 +229,7 @@ function ImageCard({
         <div className="flex flex-shrink-0 items-center gap-3">
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <button
                   onClick={() => onToggleActive(image)}
                   className={`h-2 w-2 rounded-full transition-colors ${image.isActive ? "bg-green-500" : "bg-muted-foreground/30"}`}
@@ -242,7 +242,7 @@ function ImageCard({
           </TooltipProvider>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button
                 variant="ghost"
                 size="icon"
@@ -345,7 +345,7 @@ function ImageCard({
         <div className="flex items-center gap-1.5">
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
