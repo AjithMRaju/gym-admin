@@ -1,6 +1,6 @@
 "use client"
-
 import React, { useState, useEffect, useRef } from "react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -296,7 +296,7 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg lg:max-w-2xl lg:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
+          <DialogTitle className="brand-text flex items-center gap-2 dark:text-green-400">
             <Dumbbell className="h-5 w-5" />
             {editingHero ? "Edit Hero Section" : "Create Hero Section"}
           </DialogTitle>
@@ -594,7 +594,7 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
           <Button
             onClick={handleSubmit}
             disabled={saving}
-            className="min-w-[120px] bg-green-600 text-white hover:bg-green-700"
+            className="brand-bg min-w-30 text-white hover:bg-green-700"
           >
             {saving ? (
               <>
@@ -666,9 +666,15 @@ function HeroCard({ hero, onEdit, onDelete }) {
   const isActive = hero.isActive ?? hero.is_active
 
   return (
-    <Card className="group overflow-hidden rounded border p-0 transition-all duration-200 hover:border-green-300 hover:shadow-md dark:hover:border-green-800">
+    <Card className="group hover:brand-hover dark:hover:brand-hover overflow-hidden rounded border p-0 transition-all duration-200 hover:shadow-md">
       {/* Media thumbnail */}
-      <div className="relative h-36 overflow-hidden bg-linear-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
+      {/* <div className="relative h-36 overflow-hidden bg-linear-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900"> */}
+      <div
+        className={cn(
+          "brand-surface-gradient relative h-36 overflow-hidden rounded"
+          // You no longer need: from-green-50 to-emerald-100 dark:from-green-950...
+        )}
+      >
         {imageUrl && (
           <img
             src={`${NEXT_PUBLIC_API_URL}${imageUrl}`}
@@ -691,13 +697,10 @@ function HeroCard({ hero, onEdit, onDelete }) {
               e.currentTarget.style.display = "none"
             }}
           />
-          // <div className="flex h-full items-center justify-center">
-          //   <Video className="h-10 w-10 text-green-500 opacity-60" />
-          // </div>
         )}
         {!imageUrl && !videoUrl && (
           <div className="flex h-full items-center justify-center">
-            <ImageIcon className="h-10 w-10 text-green-400 opacity-40" />
+            <ImageIcon className="brand-text h-10 w-10 opacity-40" />
           </div>
         )}
 
@@ -706,7 +709,7 @@ function HeroCard({ hero, onEdit, onDelete }) {
           <Badge
             className={
               isActive
-                ? "bg-green-600 text-xs text-white hover:bg-green-600"
+                ? "brand-bg hover:bg-brand-hover text-xs text-white"
                 : "bg-muted text-xs text-muted-foreground"
             }
           >
@@ -752,8 +755,8 @@ function HeroCard({ hero, onEdit, onDelete }) {
       </CardHeader>
 
       <CardContent className="px-4 pb-2">
-        <div className="inline-flex items-center rounded-md border border-green-200 bg-green-50 px-2.5 py-1 dark:border-green-800 dark:bg-green-950">
-          <span className="max-w-45 truncate text-xs font-medium text-green-700 dark:text-green-300">
+        <div className="brand-border brand-tint dark:brand-bg inline-flex items-center rounded-md border px-2.5 py-1 dark:border-green-800">
+          <span className="brand-text max-w-45 truncate text-xs font-medium dark:text-green-300">
             {buttonTitle}
           </span>
         </div>
@@ -818,7 +821,7 @@ function LiveHeroPreview({ hero }) {
   const buttonTitle = hero.ctaText || hero.button_title
 
   return (
-    <div className="relative flex min-h-75 items-end overflow-hidden rounded bg-linear-to-br from-green-900 to-emerald-950 sm:min-h-[380px]">
+    <div className="brand-gradient-hero relative flex min-h-75 items-end overflow-hidden rounded sm:min-h-95">
       {imageUrl && (
         <img
           src={`${NEXT_PUBLIC_API_URL}${imageUrl}`}
@@ -855,14 +858,14 @@ function LiveHeroPreview({ hero }) {
           <p className="mb-5 text-sm leading-relaxed text-white/80 sm:text-base">
             {hero.subheading}
           </p>
-          <button className="rounded-lg bg-green-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors duration-150 hover:bg-green-400 active:bg-green-600 sm:text-base">
+          <button className="brand-bg rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors duration-150 hover:bg-green-400 active:bg-green-600 sm:text-base">
             {buttonTitle}
           </button>
         </div>
       </div>
 
       {/* Live badge */}
-      <Badge className="absolute top-3 right-3 animate-pulse bg-green-600 text-xs text-white">
+      <Badge className="brand-bg absolute top-3 right-3 animate-pulse text-xs text-white">
         Live Preview
       </Badge>
     </div>
@@ -876,7 +879,6 @@ const HeroDashboardPage = () => {
   const [activeHero, setActiveHero] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState("")
-  console.log("🚀 ~ HeroDashboardPage ~ fetchError:", fetchError)
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingHero, setEditingHero] = useState(null)
@@ -982,7 +984,7 @@ const HeroDashboardPage = () => {
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex h-14 w-full items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-600">
+            <div className="brand-bg flex h-8 w-8 items-center justify-center rounded-lg">
               <Dumbbell className="h-4 w-4 text-white" />
             </div>
             <span className="hidden text-sm font-semibold text-foreground sm:block sm:text-base">
@@ -1012,7 +1014,7 @@ const HeroDashboardPage = () => {
             <Button
               size="sm"
               onClick={handleCreate}
-              className="h-8 gap-1.5 bg-green-600 text-xs text-white hover:bg-green-700 sm:text-sm"
+              className="brand-bg h-8 gap-1.5 text-xs text-white sm:text-sm"
             >
               <PlusCircle className="h-4 w-4" />
               <span className="hidden sm:inline">New Hero</span>
@@ -1027,7 +1029,7 @@ const HeroDashboardPage = () => {
         <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
             <div className="flex items-center gap-2">
-              <LayoutDashboard className="h-5 w-5 text-green-600" />
+              <LayoutDashboard className="brand-text h-5 w-5" />
               <h1 className="text-xl font-bold text-foreground sm:text-2xl">
                 Hero Section
               </h1>
@@ -1040,15 +1042,11 @@ const HeroDashboardPage = () => {
           {!loading && !fetchError && (
             <div className="flex gap-3">
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">
-                  {totalCount}
-                </p>
+                <p className="brand-text text-2xl font-bold">{totalCount}</p>
                 <p className="text-xs text-muted-foreground">Total</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">
-                  {activeCount}
-                </p>
+                <p className="brand-text text-2xl font-bold">{activeCount}</p>
                 <p className="text-xs text-muted-foreground">Active</p>
               </div>
             </div>
@@ -1082,7 +1080,7 @@ const HeroDashboardPage = () => {
         {activeHero && !loading && (
           <section>
             <div className="mb-3 flex items-center gap-2">
-              <Eye className="h-4 w-4 text-green-600" />
+              <Eye className="brand-text h-4 w-4" />
               <h2 className="text-sm font-semibold text-foreground">
                 Active Hero Preview
               </h2>
@@ -1097,7 +1095,7 @@ const HeroDashboardPage = () => {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Upload className="h-4 w-4 text-green-600" />
+              <Upload className="brand-text h-4 w-4" />
               All Hero Sections
             </h2>
             <Badge variant="secondary" className="text-xs">

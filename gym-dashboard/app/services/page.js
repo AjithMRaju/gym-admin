@@ -129,8 +129,8 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
     <tr
       ref={setNodeRef}
       style={style}
-      className={`group border-b transition-colors hover:bg-green-50/40 ${
-        isDragging ? "rounded-lg bg-green-50 shadow-lg" : ""
+      className={`group hover:brand-hover border-b transition-colors ${
+        isDragging ? "brand-tint rounded-lg shadow-lg" : ""
       }`}
     >
       {/* Drag handle */}
@@ -156,16 +156,16 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
         ) : (
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-100 to-green-200">
             {service.icon ? (
-              <span className="text-lg text-green-700">{service.icon}</span>
+              <span className="brand-text text-lg">{service.icon}</span>
             ) : (
-              <Layers className="h-4 w-4 text-green-500" />
+              <Layers className="brand-text h-4 w-4" />
             )}
           </div>
         )}
       </td>
 
       {/* Title + Description */}
-      <td className="min-w-[200px] px-4 py-4">
+      <td className="min-w-50 px-4 py-4">
         <p className="text-sm leading-tight font-semibold">{service.title}</p>
         <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">
           {service.description}
@@ -175,7 +175,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
       {/* Price */}
       <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
         {service.price ? (
-          <span className="inline-flex items-center gap-1 font-medium text-green-700">
+          <span className="brand-text inline-flex items-center gap-1 font-medium">
             {service.price}
           </span>
         ) : (
@@ -187,7 +187,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
       <td className="px-4 py-4 text-sm whitespace-nowrap">
         {service.duration ? (
           <span className="inline-flex items-center gap-1">
-            <Clock className="h-3 w-3 text-green-400" />
+            <Clock className="brand-text h-3 w-3" />
             {service.duration}
           </span>
         ) : (
@@ -197,7 +197,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
 
       {/* Order */}
       <td className="px-4 py-4 text-center">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-50 text-xs font-bold text-green-700">
+        <span className="brand-tint brand-text inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold">
           {service.order ?? "—"}
         </span>
       </td>
@@ -364,7 +364,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
         <div className="sticky top-0 z-10 border-b bg-white px-6 pt-6 pb-4 dark:bg-secondary">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded bg-linear-to-br from-green-500 to-green-700">
+              <div className="to-brand-bg from-brand-bg flex h-10 w-10 items-center justify-center rounded bg-linear-to-br">
                 {isEdit ? (
                   <Pencil className="h-5 w-5 text-white" />
                 ) : (
@@ -500,7 +500,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
-                    <DollarSign className="h-3.5 w-3.5 text-green-500" />
+                    <DollarSign className="brand-text h-3.5 w-3.5" />
                     Price
                   </span>
                 </Label>
@@ -514,7 +514,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-green-500" />
+                    <Clock className="brand-text h-3.5 w-3.5" />
                     Duration
                   </span>
                 </Label>
@@ -528,7 +528,7 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-400">
                   <span className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5 text-green-500" />
+                    <Hash className="brand-text h-3.5 w-3.5" />
                     Sort Order
                   </span>
                 </Label>
@@ -617,7 +617,7 @@ function StatCard({ label, value, icon: Icon, accent }) {
             <p className="mt-1 text-2xl font-bold">{value}</p>
           </div>
           <div
-            className={`flex h-12 w-12 items-center justify-center rounded ${accent}`}
+            className={`brand-tint flex h-12 w-12 items-center justify-center rounded`}
           >
             <Icon className="h-5 w-5" />
           </div>
@@ -896,7 +896,7 @@ export default function ServicesAdminPanel() {
                 onClick={() => setFilterStatus(f)}
                 className={`cursor-pointer rounded px-3 py-1 text-xs font-medium capitalize transition-all ${
                   filterStatus === f
-                    ? "bg-green-600 text-white shadow-sm"
+                    ? "brand-bg text-white shadow-sm"
                     : " hover:bg-gray-50 hover:text-gray-700"
                 }`}
               >
@@ -921,7 +921,7 @@ export default function ServicesAdminPanel() {
               </div>
               <Badge
                 variant="outline"
-                className="border-green-200 bg-green-50 text-xs text-green-700"
+                className="brand-tint brand-text brand-border text-xs"
               >
                 {filteredServices.length} result
                 {filteredServices.length !== 1 ? "s" : ""}
@@ -932,13 +932,13 @@ export default function ServicesAdminPanel() {
           <div className="overflow-x-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-                <Loader2 className="mb-3 h-8 w-8 animate-spin text-green-400" />
+                <Loader2 className="brand-text mb-3 h-8 w-8 animate-spin" />
                 <p className="text-sm">Loading services…</p>
               </div>
             ) : filteredServices.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50">
-                  <Layers className="h-7 w-7 text-green-300" />
+                <div className="brand-tint mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+                  <Layers className="brand-text h-7 w-7" />
                 </div>
                 <p className="text-sm font-medium">No services found</p>
                 <p className="mt-1 text-xs text-gray-400">

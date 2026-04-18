@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { Toaster } from "sonner"
 import GlobalToast from "@/common/alerts/GlobalToast"
+import { BrandProvider } from "@/common/BrandProvider"
 import GlobalAlerts from "@/common/alerts/GlobalAlerts"
 import ReduxProvider from "@/lib/redux/provider"
 import AuthLayout from "@/layout/AuthLayout/AuthLayout"
@@ -38,10 +39,12 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ReduxProvider>
-            <AuthLayout>{children}</AuthLayout>
-            <Toaster />
-            <GlobalToast />
-            <GlobalAlerts />
+            <BrandProvider>
+              <AuthLayout>{children}</AuthLayout>
+              <Toaster />
+              <GlobalToast />
+              <GlobalAlerts />
+            </BrandProvider>
           </ReduxProvider>
         </ThemeProvider>
       </body>

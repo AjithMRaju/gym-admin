@@ -1,4 +1,3 @@
- 
 "use client"
 
 import { usePathname } from "next/navigation" // Import the hook
@@ -28,44 +27,24 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        {/* <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Quick Create"
-              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-            >
-              <PlusCircleIcon />
-              <span>Quick Create</span>
-            </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-            >
-              <EnvelopeIcon />
-              <span className="sr-only">Inbox</span>
-            </Button>
-          </SidebarMenuItem>
-        </SidebarMenu> */}
         <SidebarMenu>
           {items.map((item) => {
             // Check if the current path matches the item URL
             // Works for exact matches and sub-routes
-            const isActive = pathname === item.url || pathname?.startsWith(`${item.url}/`)
+            const isActive =
+              pathname === item.url || pathname?.startsWith(`${item.url}/`)
 
             return (
               <Link href={item.url} key={item.title}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton 
-                className={cn(
-                      "transition-all duration-300  ",
+                  <SidebarMenuButton
+                    className={cn(
+                      "cursor-pointer text-sm transition-all duration-300",
                       isActive && [
-                        // Light Mode: White to Green gradient
-                        "bg-gradient-to-r from-white to-green-100 text-green-700",
-                        // Dark Mode: Dark (zinc-900) to Green gradient
-                        "dark:bg-gradient-to-r dark:from-zinc-900 dark:to-green-600/60 dark:text-green-400",
-                        // Border to emphasize the active state
-                      
+                        // This single class now handles the gradient and dark mode logic
+                        "brand-gradient-active",
+                        // Use the brand-border utility for the active state indicator
+                        "brand-border",
                       ]
                     )}
                     tooltip={item.title}
