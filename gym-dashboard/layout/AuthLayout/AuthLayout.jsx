@@ -1,5 +1,3 @@
-
-
 "use client"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
@@ -8,7 +6,7 @@ import { useEffect, useState } from "react"
 import { setAuth } from "@/lib/redux/slices/authSlice"
 import LoginPage from "@/app/login/page"
 import ConditionalRender from "@/layout/ConditionalRender/ConditionalRender"
-import {GymLoader} from "@/common/loaders/GymLoader"
+import { GymLoader } from "@/common/loaders/GymLoader"
 
 const AuthLayout = ({ children }) => {
   const dispatch = useAppDispatch()
@@ -19,7 +17,6 @@ const AuthLayout = ({ children }) => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("admin_token")
-    
 
     if (storedToken && !token) {
       dispatch(setAuth(storedToken))
@@ -31,7 +28,7 @@ const AuthLayout = ({ children }) => {
   if (isLoading) {
     return (
       <main className="flex h-screen w-full items-center justify-center">
-       <GymLoader/>
+        <GymLoader />
       </main>
     )
   }

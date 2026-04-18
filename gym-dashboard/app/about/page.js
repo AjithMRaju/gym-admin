@@ -539,10 +539,10 @@ const AboutAdminPanel = () => {
               <Card key={label} className="rounded border-none shadow-none">
                 <CardContent className="flex items-center gap-3 p-4">
                   <div
-                    className="shrink-0 rounded-lg p-2"
-                    style={{ backgroundColor: `${brandColor}18` }}
+                    className="brand-tint shrink-0 rounded-lg p-2"
+                    // style={{ backgroundColor: `${brandColor}18` }}
                   >
-                    <Icon className="h-4 w-4" style={{ color: brandColor }} />
+                    <Icon className="brand-text h-4 w-4" />
                   </div>
                   <div>
                     <p className="text-xs leading-none text-muted-foreground">
@@ -835,9 +835,9 @@ const AboutAdminPanel = () => {
                   style={{ backgroundColor: `${brandColor}18` }}
                 >
                   {editMode ? (
-                    <Pencil className="h-4 w-4" style={{ color: brandColor }} />
+                    <Pencil className="brand-text h-4 w-4" />
                   ) : (
-                    <Plus className="h-4 w-4" style={{ color: brandColor }} />
+                    <Plus className="brand-text h-4 w-4" />
                   )}
                 </div>
                 {editMode ? "Edit About Section" : "Create About Section"}
