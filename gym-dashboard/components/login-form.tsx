@@ -1,15 +1,8 @@
-// components/LoginForm.jsx  ← UPDATED
-// ─────────────────────────────────────────────────────────────────────────────
-// Changes from original:
-//  • Removed all inline style={{ color: brandColor.hex }} etc.
-//  • Every colored element now uses a brand-* className instead
-//  • setBrandColor dispatch updates Redux → BrandProvider re-injects CSS globally
-//  • No local brandColor state — truth lives in Redux
-// ─────────────────────────────────────────────────────────────────────────────
-
+// components/LoginForm.tsx
 "use client"
 
-import { useState } from "react"
+import * as React from "react"
+import { useState, FormEvent, ChangeEvent } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,45 +13,69 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react"
-import { useSelector } from "react-redux"
-import { useAppDispatch } from "@/lib/redux/hooks"
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import { setAuth } from "@/lib/redux/slices/authSlice"
 import { setBrandColor, BRAND_COLORS } from "@/lib/redux/slices/brandSlice"
+import { useSelector } from "react-redux"
 
 const API_URL = "http://localhost:8000/api/auth/login"
 
-export function LoginForm({ className, ...props }) {
+interface LoginFormProps extends React.ComponentPropsWithoutRef<"form"> {
+  className?: string
+}
+
+type BrandColor = (typeof BRAND_COLORS)[number]
+
+// Assuming your Redux state structure; update path if your RootState is defined elsewhere
+// If you have a RootState type in hooks, useAppSelector handles this automatically.
+
+export function LoginForm({ className, ...props }: LoginFormProps) {
   const dispatch = useAppDispatch()
-  const brandColor = useSelector((state) => state.brand)
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  // Using useAppSelector ensures brandColor is typed correctly based on your store
+  const brandColor = useSelector((state: { brand: BrandColor }) => state.brand)
 
-  const handleColorSelect = (color) => dispatch(setBrandColor(color))
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [showPass, setShowPass] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>("")
+  const [success, setSuccess] = useState<boolean>(false)
 
-  const handleSubmit = async (e) => {
+  const handleColorSelect = (color: BrandColor): void => {
+    dispatch(setBrandColor(color))
+  }
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     setError("")
     setLoading(true)
+
     try {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
+
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.message || "Invalid credentials.")
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Invalid credentials.")
+      }
+
       if (data?.token) {
         localStorage.setItem("admin_token", data.token)
         dispatch(setAuth(data.token))
       }
+
       setSuccess(true)
-    } catch (err) {
-      setError(err.message || "Something went wrong.")
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("Something went wrong.")
+      }
     } finally {
       setLoading(false)
     }
@@ -80,14 +97,14 @@ export function LoginForm({ className, ...props }) {
           </p>
         </div>
 
-        {/* Error */}
+        {/* Error Message */}
         {error && (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </div>
         )}
 
-        {/* Success */}
+        {/* Success Message */}
         {success && (
           <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
@@ -95,7 +112,7 @@ export function LoginForm({ className, ...props }) {
           </div>
         )}
 
-        {/* Email */}
+        {/* Email Field */}
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
@@ -104,13 +121,15 @@ export function LoginForm({ className, ...props }) {
             placeholder="admin@gym.com"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.target.value)
+            }
             disabled={loading || success}
             className="brand-focus"
           />
         </Field>
 
-        {/* Password */}
+        {/* Password Field */}
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -124,7 +143,9 @@ export function LoginForm({ className, ...props }) {
               type={showPass ? "text" : "password"}
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
               disabled={loading || success}
               className="brand-focus pr-10"
             />
@@ -143,7 +164,7 @@ export function LoginForm({ className, ...props }) {
           </div>
         </Field>
 
-        {/* Color Picker */}
+        {/* Color Picker Section */}
         <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -157,7 +178,7 @@ export function LoginForm({ className, ...props }) {
             <span className="brand-badge">{brandColor.label}</span>
           </div>
           <div className="grid grid-cols-8 gap-3">
-            {BRAND_COLORS.map((color) => {
+            {BRAND_COLORS.map((color: BrandColor) => {
               const isSelected = color.id === brandColor.id
               return (
                 <button
@@ -183,7 +204,7 @@ export function LoginForm({ className, ...props }) {
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Submit Button */}
         <Field>
           <Button
             type="submit"
