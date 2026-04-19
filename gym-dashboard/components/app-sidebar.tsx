@@ -32,6 +32,7 @@ import {
   CommandIcon,
   ImageSquareIcon,
   AddressBookIcon,
+  SneakerMoveIcon,
 } from "@phosphor-icons/react"
 import { ThemeToggle } from "@/common/mode/theme-toggle"
 import { MessageSquareIcon } from "lucide-react"
@@ -62,6 +63,11 @@ const data = {
       title: "Services",
       url: "/services",
       icon: <FolderIcon />,
+    },
+    {
+      title: "Offerings",
+      url: "/offerings  ",
+      icon: <SneakerMoveIcon size={32} />,
     },
     {
       title: "Gallery",
