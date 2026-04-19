@@ -56,7 +56,7 @@ import ErrorBanner from "@/common/clientError/ErrorBanner"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const API_BASE = "http://localhost:8000/api"
+const API_BASE = "https://gym-backedn.vercel.app/api"
 const NEXT_PUBLIC_API_URL = "http://localhost:8000"
 
 // TODO: Replace with dynamic auth token from your auth system
@@ -422,7 +422,8 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                     <div className="space-y-2">
                       <div className="relative overflow-hidden rounded-md border border-border">
                         <img
-                          src={`${NEXT_PUBLIC_API_URL}${form.imageUrl}`}
+                          // src={`${NEXT_PUBLIC_API_URL}${form.imageUrl}`}
+                          src={form.imageUrl}
                           alt="Current hero background"
                           className="h-40 w-full object-cover"
                         />
@@ -489,7 +490,8 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                     <div className="space-y-2">
                       <div className="relative overflow-hidden rounded-md border border-border">
                         <video
-                          src={`${NEXT_PUBLIC_API_URL}${form.videoUrl}`}
+                          
+                          src={form.videoUrl}
                           className="h-40 w-full object-cover"
                           muted
                           loop
@@ -660,7 +662,6 @@ function DeleteConfirmDialog({
 
 function HeroCard({ hero, onEdit, onDelete }) {
   const imageUrl = hero.backgroundImage || hero.image_url
-
   const videoUrl = hero.backgroundVideo || hero.video_url
   const buttonTitle = hero.ctaText || hero.button_title
   const isActive = hero.isActive ?? hero.is_active
@@ -677,7 +678,7 @@ function HeroCard({ hero, onEdit, onDelete }) {
       >
         {imageUrl && (
           <img
-            src={`${NEXT_PUBLIC_API_URL}${imageUrl}`}
+            src={imageUrl}
             alt={hero.heading}
             className="h-full w-full object-cover"
             onError={(e) => {
@@ -687,7 +688,7 @@ function HeroCard({ hero, onEdit, onDelete }) {
         )}
         {videoUrl && !imageUrl && (
           <video
-            src={`${NEXT_PUBLIC_API_URL}${videoUrl}`}
+            src={videoUrl}
             autoPlay
             muted
             loop
@@ -824,7 +825,7 @@ function LiveHeroPreview({ hero }) {
     <div className="brand-gradient-hero relative flex min-h-75 items-end overflow-hidden rounded sm:min-h-95">
       {imageUrl && (
         <img
-          src={`${NEXT_PUBLIC_API_URL}${imageUrl}`}
+          src={imageUrl}
           alt={hero.heading}
           className="absolute inset-0 h-full w-full object-cover opacity-60"
           onError={(e) => {
@@ -834,7 +835,7 @@ function LiveHeroPreview({ hero }) {
       )}
       {videoUrl && !imageUrl && (
         <video
-          src={`${NEXT_PUBLIC_API_URL}${videoUrl}`}
+          src={videoUrl}
           autoPlay
           muted
           loop

@@ -631,7 +631,7 @@ const AboutAdminPanel = () => {
                             {record.image ? (
                               <img
                                 // src={record.image}
-                                src={`http://localhost:8000${record.image}`}
+                                src={record.image}
                                 alt="about"
                                 className="h-9 w-14 rounded-md border object-cover"
                               />

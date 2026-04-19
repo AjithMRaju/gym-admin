@@ -55,7 +55,7 @@ import {
 } from "@/components/ui/tooltip";
 import { showToast } from "../../lib/redux/slices/toastSlice"; // adjust path to your toast slice
 
-const API_BASE = "http://localhost:8000/api/offering";
+const API_BASE = "https://gym-backedn.vercel.app/api/offering";
 
 // ─── API helpers ─────────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {

@@ -149,7 +149,7 @@ function SortableRow({ service, onEdit, onDelete, onToggleActive }) {
       <td className="w-16 px-4 py-4">
         {service.image ? (
           <img
-            src={`${BASE_URL}${service.image}`}
+            src={service.image}
             alt={service.title}
             className="h-10 w-10 rounded-lg object-cover ring-2 ring-green-100"
           />
@@ -441,10 +441,8 @@ function ServiceFormDialog({ open, onClose, onSuccess, editingService }) {
                           imagePreview.startsWith("data:")
                             ? imagePreview
                             : // 2. If it's a backend path starting with /uploads, prepend BASE_URL
-                              imagePreview.startsWith("/uploads")
-                              ? `${BASE_URL}${imagePreview}`
-                              : // 3. Otherwise, use as is (for full external URLs)
-                                imagePreview
+                              imagePreview
+                              
                         }
                         alt="Preview"
                         className="absolute inset-0 h-full w-full object-cover"
