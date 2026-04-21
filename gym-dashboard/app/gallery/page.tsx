@@ -670,7 +670,7 @@ function ImageFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 overflow-y-auto">
           <div className="space-y-6 px-6 py-5">
             {/* Upload mode tabs (only for new upload) */}
             {!isEdit && (
@@ -866,7 +866,7 @@ export default function GalleryAdmin() {
 
   // State
   const [images, setImages] = useState<GalleryImage[]>([])
-  console.log("🚀 ~ GalleryAdmin ~ images:", images)
+
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta>({
     total: 0,

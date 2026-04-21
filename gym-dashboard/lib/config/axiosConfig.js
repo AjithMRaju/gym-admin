@@ -5,6 +5,7 @@ const tempToken =
 // Create the instance
 const axiosInstance = axios.create({
   baseURL: "https://gym-backedn.vercel.app/api/",
+  // baseURL: "http://localhost:8000/api/", // For local development
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -15,8 +16,8 @@ const axiosInstance = axios.create({
 // Perfect for adding Authorization headers dynamically
 axiosInstance.interceptors.request.use(
   (config) => {
-    // const token = localStorage.getItem("token")
-    const token = tempToken
+    const token = localStorage.getItem("admin_token")
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }

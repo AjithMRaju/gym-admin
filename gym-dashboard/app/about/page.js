@@ -1,9 +1,3 @@
-/**
- * AboutAdminPanel.jsx
- * Admin panel for managing the About section content.
- * Uses shadcn/ui components, axiosInstance for API calls,
- * and reads brand color from localStorage (key: admin_brandcolor).
- */
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import axiosInstance from "@/lib/config/axiosConfig" // Adjust path as needed
@@ -16,14 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -82,6 +69,7 @@ import {
   LayoutDashboard,
 } from "lucide-react"
 import { getBrandColor } from "../../helper/helper"
+import { uploadFileToCloudinary } from "../../lib/uploads/uploadFileToCloudinary"
 
 /* ─────────────────────────────────────────────
    Utility: read brand colour from localStorage
@@ -268,6 +256,7 @@ const AboutAdminPanel = () => {
 
   /* ── State ── */
   const [records, setRecords] = useState([])
+
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -358,6 +347,7 @@ const AboutAdminPanel = () => {
     fd.append("isActive", String(form.isActive))
     if (form.stats.length > 0) fd.append("stats", JSON.stringify(form.stats))
     if (imageFile) fd.append("image", imageFile)
+
     return fd
   }
 
@@ -390,10 +380,12 @@ const AboutAdminPanel = () => {
         await axiosInstance.put(`/about/${editId}`, fd, {
           headers: { "Content-Type": "multipart/form-data" },
         })
-        toast({
-          title: "Updated!",
-          description: "About section updated successfully.",
-        })
+        dispatch(
+          showToast({
+            message: "About section updated successfully.",
+            type: "success",
+          })
+        )
       } else {
         // POST /about
         await axiosInstance.post("/about", fd, {
