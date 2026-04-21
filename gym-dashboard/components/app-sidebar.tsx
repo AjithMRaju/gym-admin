@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -33,9 +32,19 @@ import {
   ImageSquareIcon,
   AddressBookIcon,
   SneakerMoveIcon,
+  UserCircleCheckIcon,
+  BarbellIcon,
+  IdentificationCardIcon,
+  StrategyIcon,
 } from "@phosphor-icons/react"
 import { ThemeToggle } from "@/common/mode/theme-toggle"
-import { MessageSquareIcon } from "lucide-react"
+import {
+  BellIcon,
+  CalendarIcon,
+  CreditCardIcon,
+  MessageSquareIcon,
+} from "lucide-react"
+import NotificationPanel from "@/common/notification/NotificationPanel"
 
 const data = {
   user: {
@@ -43,6 +52,8 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
+
+  // WEB
   navMain: [
     {
       title: "Dashboard",
@@ -77,57 +88,57 @@ const data = {
     {
       title: "Contact",
       url: "/contact",
-      icon: <AddressBookIcon   />,
+      icon: <AddressBookIcon />,
     },
   ],
-  navClouds: [
+
+  // Finance & Plans
+  navFinance: [
     {
-      title: "Capture",
-      icon: <CameraIcon />,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Memberships",
+      url: "/memberships",
+      icon: <IdentificationCardIcon size={32} />,
     },
     {
-      title: "Proposal",
-      icon: <FileTextIcon />,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: <FileTextIcon />,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Payments",
+      url: "/Payments",
+      icon: <CreditCardIcon size={32} />,
     },
   ],
+
+  // Scheduling
+  navSchedule: [
+    {
+      title: "Class Schedule",
+      url: "/schedule",
+      icon: <CalendarIcon size={32} />,
+    },
+    {
+      title: "Workout Plans",
+      url: "/workouts",
+      icon: <StrategyIcon size={40} />,
+    },
+  ],
+
+  // Management
+  navManagement: [
+    {
+      title: "Clients",
+      url: "/clients",
+      icon: <UsersIcon size={32} />,
+    },
+    {
+      title: "Trainers",
+      url: "/trainers",
+      icon: <UserCircleCheckIcon size={32} />,
+    },
+    {
+      title: "Equipments",
+      url: "/inventory",
+      icon: <BarbellIcon size={32} />,
+    },
+  ],
+
   navSecondary: [
     {
       title: "Settings",
@@ -143,23 +154,6 @@ const data = {
       title: "Search",
       url: "#",
       icon: <MagnifyingGlassIcon />,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: <DatabaseIcon />,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: <ChartLineIcon />,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: <FileIcon />,
     },
   ],
 }
@@ -178,11 +172,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <ThemeToggle />
+        <div className="flex items-center justify-end">
+          <ThemeToggle />
+          <NotificationPanel align="right" />
+          {/* <BellIcon size={18} /> */}
+        </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavMain items={data.navMain} label="Web" />
+        <NavMain items={data.navManagement} label="Management" />
+        <NavMain items={data.navFinance} label="Finance & Plans" />
+        <NavMain items={data.navSchedule} label="Scheduling" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

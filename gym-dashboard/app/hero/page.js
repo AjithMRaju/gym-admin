@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -52,14 +51,16 @@ import {
   RefreshCw,
   LayoutDashboard,
 } from "lucide-react"
+import { uploadFileToCloudinary } from "../../lib/uploads/uploadFileToCloudinary"
+import { useAppDispatch } from "@/lib/redux/hooks"
+import { showToast } from "@/lib/redux/slices/toastSlice"
 import ErrorBanner from "@/common/clientError/ErrorBanner"
+import axiosInstance from "@/lib/config/axiosConfig"
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const API_BASE = "https://gym-backedn.vercel.app/api"
-const NEXT_PUBLIC_API_URL = "http://localhost:8000"
+const API_BASE = "http://localhost:8000/api"
 
-// TODO: Replace with dynamic auth token from your auth system
 const TEMP_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGRlM2FkMzZmOTJjZjA2MmI4ODcxNiIsImlhdCI6MTc3NjE2MzQ2OSwiZXhwIjoxNzc2NzY4MjY5fQ.TvacUlbpxkRXMo9CZWe_gP5LTVHfbQpr29E4tF4_mcM"
 
@@ -68,48 +69,23 @@ const authHeaders = () => ({
   Authorization: `Bearer ${TEMP_TOKEN}`,
 })
 
-// ─── Validation ───────────────────────────────────────────────────────────────
-
 const validateHeroForm = (form) => {
   const errors = {}
-
   if (!form.title.trim()) errors.title = "Title is required."
   else if (form.title.trim().length < 3)
     errors.title = "Title must be at least 3 characters."
   else if (form.title.trim().length > 100)
     errors.title = "Title must be under 100 characters."
-
   if (!form.subtitle.trim()) errors.subtitle = "Subtitle is required."
   else if (form.subtitle.trim().length < 5)
     errors.subtitle = "Subtitle must be at least 5 characters."
   else if (form.subtitle.trim().length > 250)
     errors.subtitle = "Subtitle must be under 250 characters."
-
   if (!form.buttonTitle.trim()) errors.buttonTitle = "Button title is required."
   else if (form.buttonTitle.trim().length > 50)
     errors.buttonTitle = "Button title must be under 50 characters."
-
-  // Image and video are mutually exclusive — only one allowed at a time
-  if (form.imageUrl && form.videoUrl) {
+  if (form.imageUrl && form.videoUrl)
     errors.media = "Only one media type (image or video) is allowed at a time."
-  }
-
-  if (form.imageUrl) {
-    try {
-      new URL(form.imageUrl)
-    } catch {
-      errors.imageUrl = "Enter a valid image URL."
-    }
-  }
-
-  if (form.videoUrl) {
-    try {
-      new URL(form.videoUrl)
-    } catch {
-      errors.videoUrl = "Enter a valid video URL."
-    }
-  }
-
   return errors
 }
 
@@ -163,19 +139,22 @@ function MediaPreview({ imageUrl, videoUrl }) {
   )
 }
 
-// CREATING & EDITING DIALOG
+// ─── Hero Form Dialog ─────────────────────────────────────────────────────────
+
 function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
+  const dispatch = useAppDispatch()
   const [form, setForm] = useState({
     ...EMPTY_FORM,
     backgroundImage: null,
     backgroundVideo: null,
   })
-
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [serverError, setServerError] = useState("")
   const [mediaTab, setMediaTab] = useState("image")
   const [showChangeMedia, setShowChangeMedia] = useState(false)
+  // Track upload progress label for large files
+  const [uploadStatus, setUploadStatus] = useState("")
 
   useEffect(() => {
     if (open) {
@@ -186,9 +165,10 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
           buttonTitle: editingHero.ctaText || editingHero.button_title || "",
           imageUrl: editingHero.backgroundImage || editingHero.image_url || "",
           videoUrl: editingHero.backgroundVideo || editingHero.video_url || "",
-          isActive: editingHero.isActive ?? editingHero.isActive ?? true,
+          isActive: editingHero.isActive ?? true,
+          backgroundImage: null,
+          backgroundVideo: null,
         })
-
         setMediaTab(
           editingHero.mediaType === "video" ||
             editingHero.videoUrl ||
@@ -196,14 +176,15 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
             ? "video"
             : "image"
         )
-        setShowChangeMedia(false) // reset on open
+        setShowChangeMedia(false)
       } else {
-        setForm(EMPTY_FORM)
+        setForm({ ...EMPTY_FORM, backgroundImage: null, backgroundVideo: null })
         setMediaTab("image")
         setShowChangeMedia(false)
       }
       setErrors({})
       setServerError("")
+      setUploadStatus("")
     }
   }, [open, editingHero])
 
@@ -211,7 +192,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
     const value =
       e.target?.type === "checkbox" ? e.target.checked : (e.target?.value ?? e)
     setForm((prev) => {
-      // Switching media tab clears the other field
       if (field === "imageUrl")
         return { ...prev, imageUrl: value, videoUrl: "" }
       if (field === "videoUrl")
@@ -223,8 +203,9 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
 
   const handleMediaTabChange = (tab) => {
     setMediaTab(tab)
-    if (tab === "image") setForm((prev) => ({ ...prev, videoUrl: "" }))
-    else setForm((prev) => ({ ...prev, imageUrl: "" }))
+    if (tab === "image")
+      setForm((prev) => ({ ...prev, videoUrl: "", backgroundVideo: null }))
+    else setForm((prev) => ({ ...prev, imageUrl: "", backgroundImage: null }))
     setErrors((prev) => ({
       ...prev,
       imageUrl: undefined,
@@ -238,7 +219,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
     if (file) {
       setForm((prev) => ({
         ...prev,
-        // When one is picked, the other is reset to ensure mutual exclusivity
         backgroundImage: field === "backgroundImage" ? file : null,
         backgroundVideo: field === "backgroundVideo" ? file : null,
       }))
@@ -248,47 +228,74 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
   const handleSubmit = async () => {
     setSaving(true)
     setServerError("")
+    setUploadStatus("")
 
     try {
-      // 2. Use FormData for Multer compatibility
-      const formData = new FormData()
-      formData.append("heading", form.title)
-      formData.append("subheading", form.subtitle)
-      formData.append("ctaText", form.buttonTitle)
-      formData.append("isActive", form.isActive)
+      let backgroundImageUrl = null
+      let backgroundVideoUrl = null
 
-      // 3. Attach files only if they exist
+      // ── Step 1: Upload file directly to Cloudinary if a new file was picked ──
+      // This bypasses Vercel's 4.5 MB body limit entirely.
       if (form.backgroundImage) {
-        formData.append("backgroundImage", form.backgroundImage)
-      } else if (form.backgroundVideo) {
-        formData.append("backgroundVideo", form.backgroundVideo)
+        setUploadStatus("Uploading image ...")
+
+        backgroundImageUrl = await uploadFileToCloudinary(
+          form.backgroundImage,
+          "hero"
+        )
       }
+      if (form.backgroundVideo) {
+        setUploadStatus("Uploading video (this may take a moment)")
+        backgroundVideoUrl = await uploadFileToCloudinary(
+          form.backgroundVideo,
+          "hero"
+        )
+      }
+
+      setUploadStatus("Saving…")
+
+      // ── Step 2: Send JSON to backend (URLs only, no file binary) ──
+      const payload = {
+        heading: form.title,
+        subheading: form.subtitle,
+        ctaText: form.buttonTitle,
+        isActive: form.isActive,
+      }
+
+      // Attach whichever URL we have (new upload wins over existing)
+      if (backgroundVideoUrl) {
+        payload.backgroundVideo = backgroundVideoUrl
+      } else if (backgroundImageUrl) {
+        payload.backgroundImage = backgroundImageUrl
+      }
+      // If user didn't pick a new file and is editing, don't send media fields
+      // (backend will keep the existing ones)
 
       const url = editingHero
         ? `${API_BASE}/hero/${editingHero._id || editingHero.id}`
         : `${API_BASE}/hero`
-
       const method = editingHero ? "PUT" : "POST"
 
-      const response = await fetch(url, {
+      const response = await axiosInstance({
         method,
-        headers: {
-          // IMPORTANT: Do NOT set Content-Type header when sending FormData
-          // The browser will set it automatically with the correct boundary
-          Authorization: `Bearer ${TEMP_TOKEN}`,
-        },
-        body: formData,
+        url,
+        data: payload, // Axios uses 'data' instead of 'body' and auto-stringifies
+        headers: authHeaders(),
       })
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data?.message || "Request failed")
+      const data = await response.data
+      if (!response.statusText)
+        throw new Error(data?.message || "Request failed")
 
       onSuccess(data)
       onOpenChange(false)
     } catch (err) {
-      setServerError(err.message)
+      dispatch(showToast({ message: err.message || err, type: "error" }))
+
+      // setServerError(err.message)
     } finally {
       setSaving(false)
+      setUploadStatus("")
     }
   }
 
@@ -388,7 +395,7 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
               <FieldError message={errors.buttonTitle} />
             </div>
 
-            {/* Media — Image or Video (mutually exclusive) */}
+            {/* Media */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">
                 Media{" "}
@@ -417,21 +424,14 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                 </TabsList>
 
                 <TabsContent value="image" className="space-y-2">
-                  {/* ✅ Existing image preview in edit mode */}
                   {editingHero && form.imageUrl && !showChangeMedia && (
                     <div className="space-y-2">
                       <div className="relative overflow-hidden rounded-md border border-border">
                         <img
-                          // src={`${NEXT_PUBLIC_API_URL}${form.imageUrl}`}
                           src={form.imageUrl}
                           alt="Current hero background"
                           className="h-40 w-full object-cover"
                         />
-                        <div className="absolute inset-0 flex items-end bg-black/30 p-2">
-                          <span className="max-w-full truncate text-xs text-white/80">
-                            {form.imageUrl.split("/").pop()}
-                          </span>
-                        </div>
                       </div>
                       <Button
                         type="button"
@@ -440,13 +440,10 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                         className="w-full text-xs"
                         onClick={() => setShowChangeMedia(true)}
                       >
-                        <ImageIcon className="mr-2 h-3 w-3" />
-                        Change Image
+                        <ImageIcon className="mr-2 h-3 w-3" /> Change Image
                       </Button>
                     </div>
                   )}
-
-                  {/* Show file input when: creating new OR user clicked "Change" */}
                   {(!editingHero || !form.imageUrl || showChangeMedia) && (
                     <div className="space-y-1">
                       {showChangeMedia && (
@@ -465,7 +462,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                         accept="image/*"
                         onChange={handleFileChange("backgroundImage")}
                       />
-                      {/* New file preview */}
                       {form.backgroundImage && (
                         <div className="relative mt-2 overflow-hidden rounded-md border border-green-500/40">
                           <img
@@ -473,11 +469,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                             alt="New image preview"
                             className="h-40 w-full object-cover"
                           />
-                          <div className="absolute inset-0 flex items-end bg-black/30 p-2">
-                            <span className="max-w-full truncate text-xs text-white/80">
-                              {form.backgroundImage.name}
-                            </span>
-                          </div>
                         </div>
                       )}
                     </div>
@@ -485,12 +476,10 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                 </TabsContent>
 
                 <TabsContent value="video" className="space-y-2">
-                  {/* ✅ Existing video preview in edit mode */}
                   {editingHero && form.videoUrl && !showChangeMedia && (
                     <div className="space-y-2">
                       <div className="relative overflow-hidden rounded-md border border-border">
                         <video
-                          
                           src={form.videoUrl}
                           className="h-40 w-full object-cover"
                           muted
@@ -498,11 +487,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                           autoPlay
                           playsInline
                         />
-                        <div className="pointer-events-none absolute inset-0 flex items-end bg-black/30 p-2">
-                          <span className="max-w-full truncate text-xs text-white/80">
-                            {form.videoUrl.split("/").pop()}
-                          </span>
-                        </div>
                       </div>
                       <Button
                         type="button"
@@ -511,13 +495,10 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                         className="w-full text-xs"
                         onClick={() => setShowChangeMedia(true)}
                       >
-                        <Video className="mr-2 h-3 w-3" />
-                        Change Video
+                        <Video className="mr-2 h-3 w-3" /> Change Video
                       </Button>
                     </div>
                   )}
-
-                  {/* Show file input when: creating new OR user clicked "Change" */}
                   {(!editingHero || !form.videoUrl || showChangeMedia) && (
                     <div className="space-y-1">
                       {showChangeMedia && (
@@ -536,7 +517,6 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                         accept="video/*"
                         onChange={handleFileChange("backgroundVideo")}
                       />
-                      {/* New file preview */}
                       {form.backgroundVideo && (
                         <div className="relative mt-2 overflow-hidden rounded-md border border-green-500/40">
                           <video
@@ -549,7 +529,13 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
                           />
                           <div className="pointer-events-none absolute inset-0 flex items-end bg-black/30 p-2">
                             <span className="max-w-full truncate text-xs text-white/80">
-                              {form.backgroundVideo.name}
+                              {form.backgroundVideo.name} (
+                              {(
+                                form.backgroundVideo.size /
+                                1024 /
+                                1024
+                              ).toFixed(1)}{" "}
+                              MB) — will upload directly to Cloudinary
                             </span>
                           </div>
                         </div>
@@ -601,7 +587,7 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving…
+                {uploadStatus || "Saving…"}
               </>
             ) : editingHero ? (
               "Save Changes"
@@ -615,7 +601,8 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
   )
 }
 
-// DELETE CONFIRMATION
+// ─── Delete Confirm ───────────────────────────────────────────────────────────
+
 function DeleteConfirmDialog({
   open,
   onOpenChange,
@@ -660,6 +647,8 @@ function DeleteConfirmDialog({
   )
 }
 
+// ─── Hero Card ────────────────────────────────────────────────────────────────
+
 function HeroCard({ hero, onEdit, onDelete }) {
   const imageUrl = hero.backgroundImage || hero.image_url
   const videoUrl = hero.backgroundVideo || hero.video_url
@@ -668,12 +657,9 @@ function HeroCard({ hero, onEdit, onDelete }) {
 
   return (
     <Card className="group hover:brand-hover dark:hover:brand-hover overflow-hidden rounded border p-0 transition-all duration-200 hover:shadow-md">
-      {/* Media thumbnail */}
-      {/* <div className="relative h-36 overflow-hidden bg-linear-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900"> */}
       <div
         className={cn(
           "brand-surface-gradient relative h-36 overflow-hidden rounded"
-          // You no longer need: from-green-50 to-emerald-100 dark:from-green-950...
         )}
       >
         {imageUrl && (
@@ -704,8 +690,6 @@ function HeroCard({ hero, onEdit, onDelete }) {
             <ImageIcon className="brand-text h-10 w-10 opacity-40" />
           </div>
         )}
-
-        {/* Active badge */}
         <div className="absolute top-2 right-2">
           <Badge
             className={
@@ -725,8 +709,6 @@ function HeroCard({ hero, onEdit, onDelete }) {
             )}
           </Badge>
         </div>
-
-        {/* Media type badge */}
         {(imageUrl || videoUrl) && (
           <div className="absolute top-2 left-2">
             <Badge variant="secondary" className="text-xs opacity-80">
@@ -846,26 +828,20 @@ function LiveHeroPreview({ hero }) {
           }}
         />
       )}
-
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
-
-      {/* Content */}
       <div className="relative z-10 w-full p-6 sm:p-10">
         <div className="max-w-xl">
           <h1 className="mb-3 text-2xl leading-tight font-bold text-white sm:text-4xl">
-            {hero.heading}
+            {hero.heading || "No Active Headings "}
           </h1>
           <p className="mb-5 text-sm leading-relaxed text-white/80 sm:text-base">
-            {hero.subheading}
+            {hero.subheading || "No Active Subheading Provided"}
           </p>
           <button className="brand-bg rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors duration-150 hover:bg-green-400 active:bg-green-600 sm:text-base">
-            {buttonTitle}
+            {buttonTitle || "No ACTIVE Button "}
           </button>
         </div>
       </div>
-
-      {/* Live badge */}
       <Badge className="brand-bg absolute top-3 right-3 animate-pulse text-xs text-white">
         Live Preview
       </Badge>
@@ -873,21 +849,19 @@ function LiveHeroPreview({ hero }) {
   )
 }
 
-// ─── Main Page Component ──────────────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 const HeroDashboardPage = () => {
+  const dispatch = useAppDispatch()
   const [heroes, setHeroes] = useState([])
   const [activeHero, setActiveHero] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState("")
-
   const [formOpen, setFormOpen] = useState(false)
   const [editingHero, setEditingHero] = useState(null)
-
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
-
   const [successMsg, setSuccessMsg] = useState("")
   const successTimer = useRef(null)
 
@@ -897,8 +871,6 @@ const HeroDashboardPage = () => {
     successTimer.current = setTimeout(() => setSuccessMsg(""), 3500)
   }
 
-  // Fetch all heroes (dashboard view) + active public hero
-
   const fetchData = async () => {
     setLoading(true)
     setFetchError("")
@@ -907,13 +879,10 @@ const HeroDashboardPage = () => {
         fetch(`${API_BASE}/hero/all`, { headers: authHeaders() }),
         fetch(`${API_BASE}/hero`),
       ])
-
       if (!allRes.ok)
         throw new Error(`Failed to load heroes (${allRes.status})`)
-
       const allData = await allRes.json()
       const activeData = activeRes.ok ? await activeRes.json() : null
-
       setHeroes(Array.isArray(allData) ? allData : (allData?.data ?? []))
       setActiveHero(activeData?.data ?? activeData ?? null)
     } catch (err) {
@@ -932,26 +901,22 @@ const HeroDashboardPage = () => {
     setEditingHero(hero)
     setFormOpen(true)
   }
-
   const handleCreate = () => {
     setEditingHero(null)
     setFormOpen(true)
   }
-
-  const handleFormSuccess = (data) => {
+  const handleFormSuccess = () => {
     fetchData()
-    showSuccess(
-      editingHero
-        ? "Hero section updated successfully!"
-        : "Hero section created successfully!"
-    )
+    const msg = editingHero
+      ? "Hero section updated successfully!"
+      : "Hero section created successfully!"
+    dispatch(showToast({ message: msg, type: "success" }))
+    // showSuccess()
   }
-
   const handleDeleteClick = (hero) => {
     setDeleteTarget(hero)
     setDeleteOpen(true)
   }
-
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
     setDeleting(true)
@@ -981,7 +946,6 @@ const HeroDashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Nav */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex h-14 w-full items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
@@ -992,7 +956,6 @@ const HeroDashboardPage = () => {
               GymPro Dashboard
             </span>
           </div>
-
           <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
@@ -1026,7 +989,6 @@ const HeroDashboardPage = () => {
       </header>
 
       <main className="w-ful space-y-6 py-6 sm:py-8">
-        {/* Page heading */}
         <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
             <div className="flex items-center gap-2">
@@ -1054,7 +1016,6 @@ const HeroDashboardPage = () => {
           )}
         </div>
 
-        {/* Success toast */}
         {successMsg && (
           <Alert className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -1064,7 +1025,6 @@ const HeroDashboardPage = () => {
           </Alert>
         )}
 
-        {/* Fetch error */}
         {fetchError && (
           <div className="flex h-[70dvh] w-full items-center justify-center">
             <ErrorBanner
@@ -1077,7 +1037,6 @@ const HeroDashboardPage = () => {
           </div>
         )}
 
-        {/* Live preview */}
         {activeHero && !loading && (
           <section>
             <div className="mb-3 flex items-center gap-2">
@@ -1092,7 +1051,6 @@ const HeroDashboardPage = () => {
 
         <Separator />
 
-        {/* Hero cards grid */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -1111,8 +1069,8 @@ const HeroDashboardPage = () => {
               ))}
             </div>
           ) : heroes.length === 0 && !fetchError ? (
-            <Card className="flex flex-col items-center justify-center border-2 border-dashed border-green-200 bg-green-50/30 py-16 dark:border-green-900 dark:bg-green-950/10">
-              <Dumbbell className="mb-3 h-10 w-10 text-green-300" />
+            <Card className="brand-border flex flex-col items-center justify-center border-2 border-dashed bg-green-50/30 py-16 dark:border-green-900 dark:bg-green-950/10">
+              <Dumbbell className="brand-text mb-3 h-10 w-10" />
               <p className="mb-1 text-sm font-medium text-muted-foreground">
                 No hero sections yet
               </p>
@@ -1142,15 +1100,12 @@ const HeroDashboardPage = () => {
         </section>
       </main>
 
-      {/* Create / Edit Dialog */}
       <HeroFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         editingHero={editingHero}
         onSuccess={handleFormSuccess}
       />
-
-      {/* Delete Confirm Dialog */}
       <DeleteConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
