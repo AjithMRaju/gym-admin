@@ -33,10 +33,9 @@ export function NavMain({
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => {
-            // Check if the current path matches the item URL
-            // Works for exact matches and sub-routes
+            const itemUrl = item.url.trim()
             const isActive =
-              pathname === item.url || pathname?.startsWith(`${item.url}/`)
+              pathname === itemUrl || pathname?.startsWith(`${item.url}/`)
 
             return (
               <Link href={item.url} key={item.title}>

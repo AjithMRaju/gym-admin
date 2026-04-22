@@ -59,16 +59,6 @@ import axiosInstance from "@/lib/config/axiosConfig"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const API_BASE = "http://localhost:8000/api"
-
-const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGRlM2FkMzZmOTJjZjA2MmI4ODcxNiIsImlhdCI6MTc3NjE2MzQ2OSwiZXhwIjoxNzc2NzY4MjY5fQ.TvacUlbpxkRXMo9CZWe_gP5LTVHfbQpr29E4tF4_mcM"
-
-const authHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${TEMP_TOKEN}`,
-})
-
 const validateHeroForm = (form) => {
   const errors = {}
   if (!form.title.trim()) errors.title = "Title is required."
@@ -272,20 +262,15 @@ function HeroFormDialog({ open, onOpenChange, editingHero, onSuccess }) {
       // (backend will keep the existing ones)
 
       const url = editingHero
-        ? `${API_BASE}/hero/${editingHero._id || editingHero.id}`
-        : `${API_BASE}/hero`
-      const method = editingHero ? "PUT" : "POST"
+        ? `/hero/${editingHero._id || editingHero.id}`
+        : `/hero`
 
-      const response = await axiosInstance({
-        method,
-        url,
-        data: payload, // Axios uses 'data' instead of 'body' and auto-stringifies
-        headers: authHeaders(),
-      })
+      const response = editingHero
+        ? await axiosInstance.put(url, payload)
+        : await axiosInstance.post(url, payload)
 
       const data = await response.data
-      if (!response.statusText)
-        throw new Error(data?.message || "Request failed")
+      if (response.success) throw new Error(data?.message || "Request failed")
 
       onSuccess(data)
       onOpenChange(false)
@@ -874,19 +859,27 @@ const HeroDashboardPage = () => {
   const fetchData = async () => {
     setLoading(true)
     setFetchError("")
+
     try {
       const [allRes, activeRes] = await Promise.all([
-        fetch(`${API_BASE}/hero/all`, { headers: authHeaders() }),
-        fetch(`${API_BASE}/hero`),
+        axiosInstance.get("/hero/all"),
+        axiosInstance.get("/hero"),
       ])
-      if (!allRes.ok)
-        throw new Error(`Failed to load heroes (${allRes.status})`)
-      const allData = await allRes.json()
-      const activeData = activeRes.ok ? await activeRes.json() : null
+
+      // Axios stores the parsed JSON in the .data property
+      const allData = allRes.data
+      const activeData = activeRes.data
+
+      // Preserve your existing data-shaping logic
       setHeroes(Array.isArray(allData) ? allData : (allData?.data ?? []))
       setActiveHero(activeData?.data ?? activeData ?? null)
     } catch (err) {
-      setFetchError(err.message || "Failed to fetch hero data.")
+      // Axios errors contain the message, or fallback to your default
+      setFetchError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch hero data."
+      )
     } finally {
       setLoading(false)
     }
@@ -913,29 +906,33 @@ const HeroDashboardPage = () => {
     dispatch(showToast({ message: msg, type: "success" }))
     // showSuccess()
   }
+
   const handleDeleteClick = (hero) => {
     setDeleteTarget(hero)
     setDeleteOpen(true)
   }
+
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
     setDeleting(true)
+
     try {
       const id = deleteTarget._id || deleteTarget.id
-      const res = await fetch(`${API_BASE}/hero/${id}`, {
-        method: "DELETE",
-        headers: authHeaders(),
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err?.message || `Delete failed (${res.status})`)
-      }
+
+      // Axios DELETE call
+      // Note: authHeaders are typically handled globally in the axiosInstance config
+      await axiosInstance.delete(`/hero/${id}`)
+
+      // If the request succeeds, Axios proceeds to the next lines
       setDeleteOpen(false)
       setDeleteTarget(null)
       fetchData()
-      showSuccess("Hero section deleted.")
+      dispatch(showToast({ message: "Hero section deleted.", type: "success" }))
     } catch (err) {
-      setFetchError(err.message)
+      // Axios captures the error response automatically
+      const errorMessage =
+        err.response?.data?.message || err.message || "Delete failed"
+      dispatch(showToast({ message: errorMessage, type: "error" }))
     } finally {
       setDeleting(false)
     }

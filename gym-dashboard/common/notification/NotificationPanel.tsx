@@ -236,7 +236,7 @@ function NotificationItem({
       className={`flex cursor-pointer items-start gap-3 border-b border-gray-100 px-4 py-3.5 transition-colors duration-150 last:border-b-0 dark:border-gray-800 ${
         read
           ? "bg-white hover:bg-gray-50 dark:bg-sidebar dark:hover:bg-gray-800/60"
-          : "bg-blue-50/40 hover:bg-blue-50/70 dark:bg-blue-950/20 dark:hover:bg-blue-950/30"
+          : "brand-tint bg-blue-50/40 hover:bg-blue-50/70 dark:hover:bg-blue-950/30"
       } `}
     >
       {/* Unread dot */}
@@ -365,7 +365,7 @@ export default function NotificationPanel({
         aria-label="Open notifications"
         aria-haspopup="true"
         aria-expanded={open}
-        className={`relative flex h-10 w-10 cursor-pointer items-center justify-center transition-all duration-150 ${
+        className={`relative flex h-5 w-5 cursor-pointer items-center justify-center transition-all duration-150 ${
           open
             ? "border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-sidebar dark:text-white dark:hover:bg-gray-800 dark:hover:text-gray-200"
@@ -374,7 +374,7 @@ export default function NotificationPanel({
         {ICONS.bell}
         {/* Unread count badge */}
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-red-500 px-1 text-[9px] leading-none font-bold text-white dark:border-gray-900">
+          <span className="absolute -top-1 right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-red-500 px-1 text-[9px] leading-none font-bold text-white dark:border-gray-900">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -417,9 +417,9 @@ export default function NotificationPanel({
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition-all ${
+              className={`brand cursor-pointer rounded-full px-3 py-1 text-xs font-medium capitalize transition-all ${
                 filter === f
-                  ? "border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                  ? "brand-tint border-gray-300 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                   : "border-transparent text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
               } `}
             >

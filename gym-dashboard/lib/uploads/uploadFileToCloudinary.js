@@ -4,7 +4,7 @@ export async function uploadFileToCloudinary(file, folder) {
   // 1. Get signature from backend
   const sigRes = await axiosInstance.get(`/${folder}/sign-upload`)
 
-  if (!sigRes.statusText) throw new Error("Failed to get upload signature")
+  if (!sigRes.data) throw new Error("Failed to get upload signature")
   const {
     signature,
     timestamp,

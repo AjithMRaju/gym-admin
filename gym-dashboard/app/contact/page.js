@@ -295,7 +295,7 @@ const DeleteConfirmDialog = ({
         <AlertDialogAction
           onClick={onConfirm}
           disabled={loading}
-          className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+          className="text-destructive-foreground bg-destructive! hover:bg-destructive/90"
         >
           {loading ? (
             <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
