@@ -248,9 +248,9 @@ function EquipmentImage({ src, name, size = "sm" }) {
   if (!src || err) {
     return (
       <div
-        className={`${dim} brand-tint brand-border flex flex-shrink-0 items-center justify-center rounded-lg border`}
+        className={`${dim} brand-tint brand-border flex flex-shrink-0 items-center justify-center rounded border`}
       >
-        <Dumbbell className="h-4 w-4 text-white opacity-50" />
+        <Dumbbell className="brand-text h-4 w-4 opacity-50" />
       </div>
     )
   }
@@ -259,7 +259,7 @@ function EquipmentImage({ src, name, size = "sm" }) {
       src={src}
       alt={name}
       onError={() => setErr(true)}
-      className={`${dim} brand-border flex-shrink-0 rounded-lg border object-cover`}
+      className={`${dim} brand-border flex-shrink-0 rounded border object-cover`}
     />
   )
 }
@@ -334,12 +334,12 @@ function StatsCard({ icon: Icon, label, value, sub }) {
   return (
     <Card className="brand-border bg-sidebar">
       <CardContent className="flex items-center gap-4 p-5">
-        <div className="brand-tint brand-border flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border">
+        <div className="brand-tint brand-border flex h-11 w-11 shrink-0 items-center justify-center rounded border">
           <Icon className="brand-icon h-5 w-5" />
         </div>
         <div>
           <p className="mb-0.5 text-xs text-muted-foreground">{label}</p>
-          <p className="brand-text text-xl leading-none font-bold">{value}</p>
+          <p className="my-2 text-xl leading-none font-bold">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
         </div>
       </CardContent>
@@ -566,7 +566,7 @@ function EquipmentDetailView({ equipment }) {
   const infoRow = (icon, label, value) =>
     value ? (
       <div className="flex items-start gap-2.5">
-        <div className="brand-tint brand-border mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border">
+        <div className="brand-tint brand-border mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border">
           {icon}
         </div>
         <div>
@@ -978,9 +978,7 @@ export default function EquipmentSection() {
         {/* ── Header ── */}
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="brand-text text-2xl font-bold tracking-tight">
-              Equipment
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight">Equipment</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
               Manage your gym's equipment inventory
             </p>
@@ -996,7 +994,7 @@ export default function EquipmentSection() {
                   disabled={loading}
                 >
                   <RefreshCw
-                    className={`brand-icon h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
                   />
                 </Button>
               </TooltipTrigger>
@@ -1048,7 +1046,7 @@ export default function EquipmentSection() {
           <CardContent className="p-4">
             <div className="flex flex-col gap-3 sm:flex-row">
               {/* Search */}
-              <div className="relative flex-1">
+              <div className="relative w-7xl">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by name, brand, model, serial..."
@@ -1383,7 +1381,7 @@ export default function EquipmentSection() {
           <DialogContent className="border-brand-border brand-scrollbar max-h-[90vh] max-w-lg overflow-y-auto bg-sidebar lg:max-w-4xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-lg">
-                <div className="bg-brand-tint brand-border flex h-8 w-8 items-center justify-center rounded-lg border">
+                <div className="bg-brand-tint brand-border flex h-8 w-8 items-center justify-center rounded border">
                   <Eye className="brand-icon h-4 w-4" />
                 </div>
                 Equipment Details
@@ -1404,7 +1402,7 @@ export default function EquipmentSection() {
               </Button>
               <Button
                 variant="outline"
-                className="gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                className="gap-2 border-red-500/30 bg-destructive! text-white hover:bg-red-500/10"
                 onClick={() => {
                   setDetailOpen(false)
                   openDelete(selected)
