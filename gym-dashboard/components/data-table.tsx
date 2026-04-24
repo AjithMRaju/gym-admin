@@ -151,7 +151,7 @@ const columns: ColumnDef<SubscriptionRow>[] = [
     id: "actions",
     cell: () => (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger >
           <Button
             variant="ghost"
             size="icon"
@@ -219,7 +219,7 @@ export function DataTable() {
           className="max-w-xs"
         />
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger >
             <Button variant="outline" size="sm">
               <ColumnsIcon className="mr-1" />
               Columns
