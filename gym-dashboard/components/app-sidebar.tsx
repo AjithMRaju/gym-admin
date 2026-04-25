@@ -101,7 +101,7 @@ const data = {
     },
     {
       title: "Payments",
-      url: "/Payments",
+      url: "/payments",
       icon: <CreditCardIcon size={32} />,
     },
   ],
