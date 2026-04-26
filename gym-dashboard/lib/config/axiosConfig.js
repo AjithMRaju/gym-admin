@@ -4,8 +4,8 @@ const tempToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGRlM2FkMzZmOTJjZjA2MmI4ODcxNiIsImlhdCI6MTc3NjMyNzQ2NiwiZXhwIjoxNzc2OTMyMjY2fQ.8EyrVqQs9SE1SnTW189xBn134Uzirq9l0EswHiEhyIw"
 // Create the instance
 const axiosInstance = axios.create({
-  // baseURL: "https://gym-backedn.vercel.app/api/",
-  baseURL: "http://localhost:8000/api/", // For local development
+  baseURL: "https://gym-backedn.vercel.app/api/",
+  // baseURL: "http://localhost:8000/api/", // For local development
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
