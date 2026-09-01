@@ -1079,7 +1079,7 @@ export default function TrainersPage() {
             onValueChange={(v) => setStatusFilter(v)}
             className="w-auto"
           >
-            <TabsList className="h-9">
+            <TabsList className="h-10!">
               {["all", "active", "inactive", "on_leave"].map((status) => (
                 <TabsTrigger
                   key={status}

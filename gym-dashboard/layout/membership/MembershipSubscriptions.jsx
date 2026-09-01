@@ -863,10 +863,10 @@ export default function MembershipSubscriptions() {
           Detail / Status Sheet
       ═══════════════════════════════════════════ */}
       <Sheet open={!!detailSub} onOpenChange={(o) => !o && setDetailSub(null)}>
-        <SheetContent className="w-full border-white/10 bg-zinc-950 text-white sm:max-w-md lg:max-w-lg!">
+        <SheetContent className="w-full border-white/10 bg-zinc-950 px-4 text-white sm:max-w-md lg:max-w-lg!">
           {detailSub && (
             <>
-              <SheetHeader className="mb-6">
+              <SheetHeader className="mb-6 px-0">
                 <SheetTitle className="text-xl font-bold text-white">
                   Subscription Detail
                 </SheetTitle>
