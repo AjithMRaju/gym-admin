@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-
+import { useState, useEffect } from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -45,6 +45,7 @@ import {
   MessageSquareIcon,
 } from "lucide-react"
 import NotificationPanel from "@/common/notification/NotificationPanel"
+import axiosInstance from "@/lib/config/axiosConfig"
 
 const data = {
   user: {
@@ -142,22 +143,35 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: <GearIcon />,
     },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: <QuestionIcon />,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: <MagnifyingGlassIcon />,
-    },
+    // {
+    //   title: "Get Help",
+    //   url: "#",
+    //   icon: <QuestionIcon />,
+    // },
+    // {
+    //   title: "Search",
+    //   url: "#",
+    //   icon: <MagnifyingGlassIcon />,
+    // },
   ],
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [brand, setBrand] = useState<{ logo_url?: string; name?: string } | null>(null)
+
+  // Fetch brand data
+  const getBrandData = async () => {
+    const response = await axiosInstance.get("/settings/gym")
+    const data = response.data
+
+    setBrand(data.data)
+  }
+
+  useEffect(() => {
+    getBrandData()
+  }, [])
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -167,8 +181,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={<a href="#" />}
             >
-              <CommandIcon className="size-5!" />
-              <span className="text-base font-semibold">Acme Inc.</span>
+              {brand?.logo_url ? (
+                brand.logo_url
+              ) : (
+                <CommandIcon className="size-5!" />
+              )}
+              <span className="text-base font-bold lg:text-xl">
+                {brand?.name}
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

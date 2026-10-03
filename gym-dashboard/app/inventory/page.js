@@ -321,7 +321,7 @@ function EmptyState({ onAdd, filtered }) {
           : "Start building your gym's equipment "}
       </p>
       {!filtered && (
-        <Button onClick={onAdd} className="brand-ui gap-2">
+        <Button onClick={onAdd} className="brand-ui gap-2" size="lg">
           <Plus className="h-4 w-4" />
           Add Equipment
         </Button>
@@ -367,7 +367,7 @@ function EquipmentForm({ form, setForm, onSubmit, loading, isEdit }) {
         placeholder={placeholder}
         value={form[id] ?? ""}
         onChange={(e) => handleChange(id, e.target.value)}
-        className="bg-brand-tint border-brand-border brand-focus brand-text placeholder:text-muted-foreground/50"
+        className="bg-brand-tint placeholder:text-muted-foreground/50"
       />
     </div>
   )

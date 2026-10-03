@@ -35,6 +35,8 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const mockImage =
+    "https://img.magnific.com/free-photo/athletic-man-practicing-gymnastics-keep-fit_23-2150989937.jpg?t=st=1791020564~exp=1791024164~hmac=88544dada9ac28a69a4eec798911cc1834e4bc965e132d68f12b793dada4dd39&w=740"
   const dispatch = useAppDispatch()
   const { isMobile } = useSidebar()
   return (
@@ -46,8 +48,8 @@ export function NavUser({
               <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
             }
           >
-            <Avatar className="size-8 rounded-lg grayscale">
-              <AvatarImage src={user.avatar} alt={user.name} />
+            <Avatar className="size-8 rounded-lg">
+              <AvatarImage src={mockImage} alt={user.name} />
               <AvatarFallback className="rounded-lg">CN</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -68,7 +70,7 @@ export function NavUser({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={mockImage} alt={user.name} />
                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -82,17 +84,17 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <UserCircleIcon />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Notifications
+              <DropdownMenuItem className="cursor-pointer">
+                <SignOutIcon />
+                Logout
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

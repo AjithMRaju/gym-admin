@@ -130,6 +130,16 @@ const formatDate = (d) => {
   })
 }
 
+const PLACEHOLDER_IMAGES = {
+  male: "https://img.magnific.com/free-photo/fit-cartoon-character-training_23-2151148959.jpg?t=st=1791006206~exp=1791009806~hmac=b67705fb54f8539f99feb71180e42f0829cbdaa87152b5a9a9dd318382ff6aaf&w=1480",
+  female:
+    "https://img.magnific.com/free-photo/portrait-anime-character-doing-fitness-exercising_23-2151666670.jpg?t=st=1791006572~exp=1791010172~hmac=9545d57af8b5e1d891fb5bbc4a5e933854f2afae824e866e8d3a145f1dd862ec&w=1480",
+  other:
+    "https://img.magnific.com/free-photo/fitness-woman-doing-squats-while-looking-mirror_23-2151149012.jpg?t=st=1791006533~exp=1791009833~hmac=7ed90c80b3d1cc8348768890ab82a73a50fe5a9c1b12764c6743d571b3d7f4c8&w=1480",
+  "prefer not to say":
+    "https://img.magnific.com/free-photo/portrait-anime-character-doing-fitness-exercising_23-2151666670.jpg?t=st=1791006572~exp=1791010172~hmac=9545d57af8b5e1d891fb5bbc4a5e933854f2afae824e866e8d3a145f1dd862ec&w=1480",
+}
+
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 const STATUS_CFG = {
   active: {
@@ -238,105 +248,109 @@ const StatusToggle = ({ status, onToggle, disabled = false }) => {
 }
 
 // ─── Client Card (Grid) ───────────────────────────────────────────────────────
-const ClientCard = ({ client, onView, onEdit, onDelete }) => (
-  <div
-    className="group relative flex cursor-pointer flex-col overflow-hidden rounded border border-border bg-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl"
-    onClick={() => onView(client)}
-  >
-    <div className="flex flex-1 flex-col gap-4 p-5">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-3">
-          <Avatar>
-            <AvatarImage src="https://github.com/maxleiter.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate leading-tight font-semibold text-foreground">
-              {client.name}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground capitalize">
-              {client.gender || "—"}
-            </p>
+const ClientCard = ({ client, onView, onEdit, onDelete }) => {
+  const userImage =
+    client.profilePicture || PLACEHOLDER_IMAGES[client.gender] || ""
+  return (
+    <div
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded border border-border bg-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl"
+      onClick={() => onView(client)}
+    >
+      <div className="flex flex-1 flex-col gap-4 p-5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar>
+              <AvatarImage src={userImage} alt="@shadcn" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate leading-tight font-semibold text-foreground">
+                {client.name}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground capitalize">
+                {client.gender || "—"}
+              </p>
+            </div>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onView(client)
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(client)
+                }}
+              >
+                <Edit2 className="mr-2 h-4 w-4" />
+                Edit Client
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(client)
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <StatusBadge status={client.status} />
+          {client.fitnessGoals?.length > 0 && (
+            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+              {client.fitnessGoals.length} goal
+              {client.fitnessGoals.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+
+        <Separator />
+
+        <div className="flex-1 space-y-2.5">
+          <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+            <Mail className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{client.email}</span>
+          </div>
+          {client.phone && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Phone className="h-3.5 w-3.5 shrink-0" />
+              <span>{client.phone}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60">
+            <Clock className="h-3 w-3 shrink-0" />
+            <span>Joined {formatDate(client.createdAt)}</span>
           </div>
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                onView(client)
-              }}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit(client)
-              }}
-            >
-              <Edit2 className="mr-2 h-4 w-4" />
-              Edit Client
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation()
-                onDelete(client)
-              }}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <StatusBadge status={client.status} />
-        {client.fitnessGoals?.length > 0 && (
-          <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-            {client.fitnessGoals.length} goal
-            {client.fitnessGoals.length > 1 ? "s" : ""}
-          </span>
-        )}
-      </div>
-
-      <Separator />
-
-      <div className="flex-1 space-y-2.5">
-        <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-          <Mail className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">{client.email}</span>
-        </div>
-        {client.phone && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 shrink-0" />
-            <span>{client.phone}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60">
-          <Clock className="h-3 w-3 shrink-0" />
-          <span>Joined {formatDate(client.createdAt)}</span>
-        </div>
-      </div>
+      <div className="absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-primary/60 via-primary to-primary/60 transition-transform duration-300 group-hover:scale-x-100" />
     </div>
-
-    <div className="absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-primary/60 via-primary to-primary/60 transition-transform duration-300 group-hover:scale-x-100" />
-  </div>
-)
+  )
+}
 
 // ─── Table Row (List) ─────────────────────────────────────────────────────────
 const ClientRow = ({ client, onView, onEdit, onDelete }) => (
@@ -348,7 +362,9 @@ const ClientRow = ({ client, onView, onEdit, onDelete }) => (
       <div className="flex items-center gap-3">
         <Avatar>
           <AvatarImage
-            src="https://github.com/maxleiter.png"
+            src={
+              client.profilePicture || PLACEHOLDER_IMAGES[client.gender] || ""
+            }
             alt="@maxleiter"
           />
           <AvatarFallback>LR</AvatarFallback>
@@ -654,6 +670,7 @@ export default function ClientsPage() {
 
   const [editClient, setEditClient] = useState(null)
   const [activeClient, setActiveClient] = useState(null)
+
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   const [form, setForm] = useState(INITIAL_FORM)
@@ -1367,7 +1384,15 @@ export default function ClientsPage() {
             {activeClient && (
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-16 w-16 shrink-0 ring-4 ring-border">
+                  <Avatar className="h-24 w-24 shrink-0 ring-4 ring-border">
+                    <AvatarImage
+                      src={
+                        activeClient.profilePicture ||
+                        PLACEHOLDER_IMAGES[activeClient.gender] ||
+                        ""
+                      }
+                      alt="@shadcn"
+                    />
                     <AvatarFallback
                       className={`${getAvatarColor(activeClient.name)} text-xl font-bold text-white`}
                     >
@@ -1379,7 +1404,10 @@ export default function ClientsPage() {
                       {activeClient.name}
                     </h3>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary" className="text-xs capitalize">
+                      <Badge
+                        variant="secondary"
+                        className="rounded-full text-xs capitalize"
+                      >
                         {activeClient.gender || "—"}
                       </Badge>
                       <StatusBadge status={activeClient.status} />

@@ -757,7 +757,7 @@ function ViewTrainer({ open, onClose, trainer }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
           <div className="absolute bottom-0 left-6">
-            <Avatar className="h-16 w-16 border-4 border-background shadow-xl">
+            <Avatar className="h-28 w-28 border-4 border-background shadow-xl">
               <AvatarImage src={trainer.photo} />
               <AvatarFallback className="bg-primary/20 text-xl font-bold text-primary">
                 {trainer.name
@@ -1029,14 +1029,14 @@ export default function TrainersPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={fetchTrainers}
               className="gap-1.5"
             >
               <RefreshCw className="h-3.5 w-3.5" /> Refresh
             </Button>
             <Button
-              size="sm"
+              size="lg"
               onClick={() => {
                 setEditTarget(null)
                 setFormOpen(true)

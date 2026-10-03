@@ -1563,7 +1563,19 @@ function FiltersBar({ filters, onChange, onReset, activeCount }) {
         onValueChange={(v) => set("method", fromSel(v))}
       >
         <SelectTrigger className="h-9 w-36! text-sm">
-          <SelectValue placeholder="Method" />
+          <SelectValue placeholder="Method">
+            {(v) => (
+              <span
+                className={
+                  !v || v === "all"
+                    ? "text-muted-foreground"
+                    : "text-foreground"
+                }
+              >
+                {!v || v === "all" ? "Method" : cap(v)}
+              </span>
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Methods</SelectItem>
@@ -1580,7 +1592,19 @@ function FiltersBar({ filters, onChange, onReset, activeCount }) {
         onValueChange={(v) => set("status", fromSel(v))}
       >
         <SelectTrigger className="h-9 w-36! text-sm">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="Status">
+            {(v) => (
+              <span
+                className={
+                  !v || v === "all"
+                    ? "text-muted-foreground"
+                    : "text-foreground"
+                }
+              >
+                {!v || v === "all" ? "Status" : cap(v)}
+              </span>
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Statuses</SelectItem>
@@ -1597,7 +1621,19 @@ function FiltersBar({ filters, onChange, onReset, activeCount }) {
         onValueChange={(v) => set("type", fromSel(v))}
       >
         <SelectTrigger className="h-9 w-36! text-sm">
-          <SelectValue placeholder="Type" />
+          <SelectValue placeholder="Type">
+            {(v) => (
+              <span
+                className={
+                  !v || v === "all"
+                    ? "text-muted-foreground"
+                    : "text-foreground"
+                }
+              >
+                {!v || v === "all" ? "Type" : cap(v)}
+              </span>
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Types</SelectItem>
